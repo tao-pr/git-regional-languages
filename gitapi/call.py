@@ -1,5 +1,5 @@
 """
-Github API executer
+Github API executer - Low-level interface
 
 @author StarColon Projects
 """
