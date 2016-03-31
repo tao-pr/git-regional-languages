@@ -27,6 +27,7 @@ Don't need to create any initial collection because
 the script will do it for you.
 
 >**CAVEAT** It really requires a huge capacity to 
-store the data.
+store the data and you can make [up to 5000 requests](https://developer.github.com/v3/#rate-limiting) 
+in a span of one hour.
 
 ---

@@ -18,8 +18,8 @@ def init_mongo(host,dbname,collection):
 if __name__ == '__main__':
 	
 	# Sequentially download the data to MongoDB
-	repo_start_id = 367
-	num_batch = 5
+	repo_start_id = 2758 #NOTE: Set to `None` to download from very beginning
+	num_batch = 10
 	mongo = init_mongo('mongodb://localhost','gitlang','repos')
 
 	while num_batch>0:
