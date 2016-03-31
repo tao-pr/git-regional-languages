@@ -4,7 +4,7 @@ Github API consumer - by service
 @author StarColon Projects
 """
 
-import call as GithubAPI
+from . import call as GithubAPI
 
 def repos(since=None):
 	if not since:

@@ -4,7 +4,7 @@ Github Information Retrieval
 @author StarColon Projects
 """
 
-import get
+from . import get
 from pprint import pprint
 from termcolor import colored
 

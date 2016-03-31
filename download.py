@@ -7,26 +7,33 @@ Download raw data to DB
 
 from gitapi import datamine
 from termcolor import colored
+from pymongo import MongoClient
 
-def init_mongo():
-	pass
+def init_mongo(host,dbname,collection):
+	cl = MongoClient('{0}:27017/'.format(host))
+	db = cl[dbname] 
+	return db[collection]
 
 
 if __name__ == '__main__':
 	
-	# TAOTODO: Sequentially download the data to MongoDB
-	repo_start_id = None
-	num_batch = 300
+	# Sequentially download the data to MongoDB
+	repo_start_id = 367
+	num_batch = 5
+	mongo = init_mongo('mongodb://localhost','gitlang','repos')
 
 	while num_batch>0:
-		print(colored("******* #{0} BATCHES TO GO *********",'cyan'))
+		print(colored("******* #{0} BATCHES TO GO *********".format(num_batch),'cyan'))
 		print("")
 
 		repos = datamine.get_repo_owner_and_langs(repo_start_id)
 
 		# Port all repos to MongoDB
-		##
+		mongo.insert_many(repos)
 
 		# Next segment
 		repo_start_id = repos[-1]['id']
 		num_batch -= 1
+
+	print(colored("FINISHED!",'green'))
+
