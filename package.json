@@ -1,0 +1,28 @@
+{
+  "name": "git-regional-languages",
+  "version": "0.0.1",
+  "description": "Github regional language data mining project!",
+  "main": "process.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/starcolon/git-regional-languages.git"
+  },
+  "keywords": [
+    "git",
+    "github",
+    "language",
+    "data",
+    "mining",
+    "mapreduce",
+    "spatial"
+  ],
+  "author": "StarColon Projects",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/starcolon/git-regional-languages/issues"
+  },
+  "homepage": "https://github.com/starcolon/git-regional-languages"
+}
