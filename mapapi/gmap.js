@@ -30,6 +30,7 @@ function interpretResults(rjson){
 		console.error(rjson['status'].toString().red);
 		return null;
 	}
+	// TAOTODO: In some cases, only country name is available
 	return {
 		status:   rjson['status'],
 		country:  rjson['results'].address_components
@@ -42,6 +43,10 @@ function interpretResults(rjson){
 	}
 }
 
+/**
+ * Get info of an address
+ * @param {String} physical location/address
+ */
 gmap.locationToInfo = function(location){
 	return new Promise(function(done,reject){
 		request.get(apiEndPoint(location), function(err,resp,body){

@@ -31,7 +31,7 @@ function prep(){
 				var _v = Object.keys(language.value)
 					.filter((location) => 
 						!~invalid_locations.indexOf(location) &&
-						location.length <= 32
+						location.length <= 48
 					)
 					.map((location) => [location,language.value[location]])
 					.filter((n) => !isNaN(n[1]))
@@ -46,6 +46,15 @@ function prep(){
 			// TAODEBUG:
 			console.log(JSON.stringify(_dist,null,2))
 
+			return _dist
+		})
+		.then(function (dist){
+			// TAOTODO: Get geolocation of associated addresses
+			var addresses = {}
+
+
+
+			
 		})
 		.then(() => process.exit(0))
 }
