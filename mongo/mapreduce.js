@@ -4,22 +4,24 @@
  * @author StarColon Projects
  */
 
-var colors = require('colors');
-var mongo = require('mongoskin');
-var _ = require('underscore');
+var colors  = require('colors');
+var mongo   = require('mongoskin');
+var _       = require('underscore');
+var Promise = require('bluebird');
 
 
 var MapReduce = {}
 
 MapReduce.db = function(serverAddr,dbName,collection){
-	return mongo.db(serverAddr + '/' + dbName).collection[collection]
+	return mongo.db(serverAddr + '/' + dbName).collection(collection);
 }
 
 MapReduce.langDistributionByLocation = function(dbsrc){
 	var map = function(){
+		var record = this;
 		Object.keys(this.langs).forEach(function(lang){
 			// {key = language, value = [location,code amount]}
-			emit(lang,[this.owner.location,this.langs[lang]])
+			emit(lang,[record.owner.location,record.langs[lang]])
 		})
 	}
 	var reduce = function(key,values){
@@ -35,13 +37,23 @@ MapReduce.langDistributionByLocation = function(dbsrc){
 		})
 		return agg;
 	}
-	dbsrc.mapReduce(
-		map.toString(),
-		reduce.toString(),
-		{
-			out: "distributionLangs"
-		}
-	)
+
+	return new Promise(function(done,reject){
+		dbsrc.mapReduce(
+			map,reduce,
+			{out: "distLangByRegion"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
 }
 
 
