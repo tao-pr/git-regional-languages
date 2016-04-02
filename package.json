@@ -29,6 +29,7 @@
     "bluebird": "^3.3.4",
     "mongodb": "^2.0.55",
     "mongoskin": "^2.0.3",
+    "requests": "^0.1.7",
     "underscore": "^1.8.3"
   }
 }
