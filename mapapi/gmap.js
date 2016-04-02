@@ -21,28 +21,39 @@ function readGoogleApiKey(){
 }
 
 function apiEndPoint(location){
-	return [
+	var url = [
 		API_ENDPOINT,
-		'api=',readGoogleApiKey(),
-		'&address=',location
+		'api=',readGoogleApiKey().trim(),
+		'&address=',encodeURI(location)
 	].join('')
+
+	// TAODEBUG:
+	console.log(url.yellow);
+
+	return url;
 }
 
 function interpretResults(rjson){
+
 	if (rjson['status'] != "OK"){
 		console.error(rjson['status'].toString().red);
 		return null;
 	}
-	// TAOTODO: In some cases, only country name is available
+	
+	function takeComponent(component){
+		var m = rjson['results'][0].address_components
+			.filter((c) => c.types.join('-')==component);
+		if (m.length==0) 
+			return null;
+		else
+			return m[0].long_name;
+	}
+
 	return {
 		status:   rjson['status'],
-		country:  rjson['results'].address_components
-		          .filter((c) => c.types.join('-')=='country-political')
-		          [0].long_name,
-		city:     rjson['results'].address_components
-		          .filter((c) => c.types.join('-')=='administrative_area_level_1-political')
-		          [0].long_name,
-		pos:      rjson['results'].geometry.location // {lat:00, lng:00}		          
+		country:  takeComponent('country-political'),
+		city:     takeComponent('administrative_area_level_1-political'),
+		pos:      rjson['results'][0].geometry.location // {lat:00, lng:00}		          
 	}
 }
 
@@ -58,7 +69,7 @@ gmap.locationToInfo = function(location){
 				console.error(err.toString().red);
 				return reject(err)
 			}
-			info = interpretResults(body);
+			info = interpretResults(JSON.parse(body));
 			return done(info)
 		})
 	})

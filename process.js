@@ -11,14 +11,21 @@
 var colors    = require('colors');
 var _         = require('underscore');
 var Promise   = require('bluebird');
+var mongo     = require('mongoskin');
 var MapReduce = require('./mongo/mapreduce.js');
 var Gmap      = require('./mapapi/gmap.js');
+
+const MONGO_SVR = 'mongodb://localhost';
+const MONGO_DB  = 'gitlang';
 
 const invalid_locations = [
 		'undefined','null','0','1','Earth',
 		'the internet','the interweb','worldwide'
 	]
 
+function dbGeo(){
+	return mongo.db(MONGO_SVR + '/' + MONGO_DB).collection('geo');
+}
 
 /**
  * Main entry
@@ -27,7 +34,7 @@ function prep(){
 	console.log('******************'.green);
 	console.log('  Preparing data'.green)
 	console.log('******************'.green);
-	var datasource = MapReduce.db('mongodb://localhost','gitlang','repos');
+	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	MapReduce.langDistributionByLocation(datasource)
 		.then(function(dist){
 
@@ -52,37 +59,49 @@ function prep(){
 				return {language: language._id, dist:_v}
 			})
 
-
-			// TAODEBUG:
-			console.log(JSON.stringify(_dist,null,2))
-
 			return _dist
 		})
 		.then(function (dist){
-			// Pump all regions to another collection
+			
+			// Pump all regions, fetch their geolocations
+			// and save to a collection
+			//---------------------------------------
+
 			return MapReduce.allRegions(datasource)
 				.then(function(regions){
 
 					// Strip only unique locations
 					var locations = _.uniq(_.pluck(regions,'_id'));
+					locations = _.reject(locations,_.isNull);
 					console.log(locations); // TAODEBUG:
 
 					return locations;					
 				})
 				.then(function(locations){
 					
-					function createGeoUpdater(location){
-						return Promise.delay(1200)
-							.then(() => updateGeolocation(location))
+					function createGeoUpdater(location,i){
+						return Promise.delay(1200+1000*i)
+							.then(() => [location,updateGeolocation(location)])
 					}
 
+					var dbgeo = dbGeo();
+
 					// Delayed update the locations
-					return Promise.each(locations,createGeoUpdater)
+					return Promise.map(locations,createGeoUpdater)
 						.then((results) => {
-							// TAOTODO: Do something with the results
+							results.forEach((geolocation) => {
+
+								console.log(geolocation); // TAODEBUG:
+
+								if (geolocation.status != 'OK')
+									return null;
+
+								// TAOTODO: Update the geolocation
+								var location = geolocation[0];
+								var geoinfo  = geolocation[1];
 
 
-
+							})
 						})
 				})
 
