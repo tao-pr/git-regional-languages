@@ -16,6 +16,9 @@ MapReduce.db = function(serverAddr,dbName,collection){
 	return mongo.db(serverAddr + '/' + dbName).collection(collection);
 }
 
+/**
+ * Get the distribution of language by regions
+ */
 MapReduce.langDistributionByLocation = function(dbsrc){
 	var map = function(){
 		var record = this;
@@ -56,6 +59,34 @@ MapReduce.langDistributionByLocation = function(dbsrc){
 	})
 }
 
+/**
+ * Get all regions
+ */
+MapReduce.allRegions = function(dbsrc){
+	var map = function(){
+		emit(this.owner.location,1)
+	}
+	var reduce = function(key,values){
+		return Array.sum(values)
+	}
+
+	return new Promise(function(done,reject){
+		dbsrc.mapReduce(
+			map, reduce,
+			{out: "regions"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
+}
 
 
 

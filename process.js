@@ -26,11 +26,14 @@ function prep(){
 			// Remove invalid language object
 			var _dist = dist.filter((language) => language._id != 'message')
 			
-			var invalid_locations = ['undefined','null','0','1']
+			var invalid_locations = [
+				'undefined','null','0','1','Earth',
+				'the internet','the interweb','worldwide'
+			]
 			_dist = _dist.map(function(language){
 				var _v = Object.keys(language.value)
 					.filter((location) => 
-						!~invalid_locations.indexOf(location) &&
+						!~invalid_locations.indexOf(location.toLowerCase()) &&
 						location.length <= 48
 					)
 					.map((location) => [location,language.value[location]])
@@ -52,9 +55,13 @@ function prep(){
 			// TAOTODO: Get geolocation of associated addresses
 			var addresses = {}
 
+			return MapReduce.allRegions(datasource)
+				.then(function(regions){
 
+					console.log(regions); // TAODEBUG:
 
-			
+				})
+
 		})
 		.then(() => process.exit(0))
 }
