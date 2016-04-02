@@ -6,12 +6,15 @@
 
 var gmap     = {}
 var fs       = require('fs');
-var requests = require('requests');
+var request  = require('request');
 var colors   = require('colors');
 var Promise  = require('bluebird');
 
 const API_ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json?";
-const PATH_API_KEY = "../GOOGLE-API-KEY";
+
+// TAOTODO: Path should related to the script dir
+const dirCurrent   = require('path').dirname(__filename) + '/';
+const PATH_API_KEY = dirCurrent + "../GOOGLE-API-KEY";
 
 function readGoogleApiKey(){
 	return fs.readFileSync(PATH_API_KEY, 'utf8');

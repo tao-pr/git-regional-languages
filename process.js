@@ -10,6 +10,7 @@
 
 var colors    = require('colors');
 var _         = require('underscore');
+var Promise   = require('bluebird');
 var MapReduce = require('./mongo/mapreduce.js');
 var Gmap      = require('./mapapi/gmap.js');
 
@@ -76,7 +77,7 @@ function prep(){
 					}
 
 					// Delayed update the locations
-					return Promise.each(locations.map(createGeoUpdater))
+					return Promise.each(locations,createGeoUpdater)
 						.then((results) => {
 							// TAOTODO: Do something with the results
 
