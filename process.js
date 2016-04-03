@@ -24,7 +24,10 @@ const invalid_locations = [
 		'the internet','the interweb','worldwide'
 	]
 
-
+/**
+ * Map from location list to associated Geolocations
+ * and store them in the DB
+ */
 function updateGeoRegions(locations){
 	
 	var geoDb = GeoDB.db(MONGO_SVR,MONGO_DB);
@@ -41,9 +44,6 @@ function updateGeoRegions(locations){
 	function saveLocation(geolocation){
 		var location = geolocation[0];
 		var geoinfo  = geolocation[1];
-
-		// TAODEBUG:
-		console.log('saveLocation : '.green, location)
 
 		if (geoinfo==null || geoinfo.status != 'OK'){
 			console.error(`Unable to locate: ${location}`.red);
@@ -71,10 +71,13 @@ function updateGeoRegions(locations){
 			.then((geoinfo) => saveLocation(geoinfo))
 	}
 
-	// TAODEBUG: Take only first 3
-	locations = locations.filter(validLocation).slice(0,3)
+	locations = locations.filter(validLocation);
 
-	return Promise.map(locations,createGeoUpdater)
+	return GeoDB.listLocations(geoDb)
+		.then((existLocations) => // Skip existing locations
+			locations.filter((r) => !~existLocations.indexOf(r))
+		)
+		.then((locations) => Promise.map(locations,createGeoUpdater))
 }
 
 /**
@@ -90,11 +93,11 @@ function prep(){
 
 			// Sort density and remove null location
 			//-----------------------------------------------------
-			
+			console.log('Analysing repo spatial density...'.green)
 			// Remove invalid language object
 			var _dist = dist.filter((language) => language._id != 'message')
 
-			_dist = _dist.map(function(language){
+			return _dist.map(function(language){
 				var _v = Object.keys(language.value)
 					.filter((location) => 
 						!~invalid_locations.indexOf(location.toLowerCase()) &&
@@ -108,15 +111,13 @@ function prep(){
 
 				return {language: language._id, dist:_v}
 			})
-
-			return _dist
 		})
 		.then(function (dist){
 			
 			// Pump all regions, fetch their geolocations
 			// and save to a collection
 			//---------------------------------------
-
+			console.log('Analysing geolocations...'.green)
 			return MapReduce.allRegions(datasource)
 				.then(function(regions){
 

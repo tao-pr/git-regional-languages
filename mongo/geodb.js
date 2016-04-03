@@ -4,6 +4,7 @@
  * @author StarColon Projects
  */
 
+var _       = require('underscore');
 var mongo   = require('mongoskin');
 var Promise = require('bluebird');
 
@@ -41,11 +42,31 @@ GeoDB.update = function(db){
 					console.error(err);
 					return reject(err)
 				}
-				console.log('[updated]'); // TAODEBUG:
 				done(n)
 			})
 		})
 	}
+}
+
+GeoDB.listLocations = function(db){
+	return new Promise(function(done,reject){
+		db.find({}).toArray(function(err,n){
+			if (err) reject(err);
+			else done(_.pluck(n,'location'));
+		})
+	})
+}
+
+/**
+ * Check whether the location exists in the database
+ */
+GeoDB.exists = function(db,location){
+	return new Promise(function(done,reject){
+		db.count({location: location},function(err,n){
+			if (err) reject(err);
+			else done(n>0)
+		})
+	})
 }
 
 
