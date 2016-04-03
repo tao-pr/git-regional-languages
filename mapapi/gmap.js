@@ -39,7 +39,7 @@ function interpretResults(rjson){
 		console.error(rjson['status'].toString().red);
 		return null;
 	}
-	
+
 	function takeComponent(component){
 		var m = rjson['results'][0].address_components
 			.filter((c) => c.types.join('-')==component);
@@ -67,10 +67,10 @@ gmap.locationToInfo = function(location){
 			if (err){
 				console.error('Error computing @: '.red + location);
 				console.error(err.toString().red);
-				return reject(err)
+				return done([location,null])
 			}
 			info = interpretResults(JSON.parse(body));
-			return done(info)
+			return done([location,info])
 		})
 	})
 }

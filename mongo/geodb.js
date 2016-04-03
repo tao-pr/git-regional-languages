@@ -23,7 +23,7 @@ GeoDB.db = function(svr,dbname){
  */
 GeoDB.update = function(db){
 	return function(location,city,country,latlng){
-		return new Promise(done,reject){
+		return new Promise(function(done,reject){
 			var query = {location: location}
 			var record = {
 				location: location,
@@ -32,15 +32,19 @@ GeoDB.update = function(db){
 				pos: latlng
 			}
 			var options = {upsert: true}
+
+			console.log('Updating...'.cyan,location); // TAODEBUG:
+			
 			db.update(query,record,options,function(err,n){
 				if (err){
 					console.error('ERROR updating Geolocation'.red);
 					console.error(err);
 					return reject(err)
 				}
+				console.log('[updated]'); // TAODEBUG:
 				done(n)
 			})
-		}
+		})
 	}
 }
 

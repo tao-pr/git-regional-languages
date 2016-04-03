@@ -25,6 +25,58 @@ const invalid_locations = [
 	]
 
 
+function updateGeoRegions(locations){
+	
+	var geoDb = GeoDB.db(MONGO_SVR,MONGO_DB);
+	var geoUpdate = GeoDB.update(geoDb);
+
+	function validLocation(location){
+		if (!!~invalid_locations.indexOf(location)){
+			console.log(`Skip - ${location}`.yellow);
+			return false;
+		}
+		else return true;
+	}
+
+	function saveLocation(geolocation){
+		var location = geolocation[0];
+		var geoinfo  = geolocation[1];
+
+		// TAODEBUG:
+		console.log('saveLocation : '.green, location)
+
+		if (geoinfo==null || geoinfo.status != 'OK'){
+			console.error(`Unable to locate: ${location}`.red);
+			geoUpdate(
+					location,
+					null,
+					null,
+					null
+				)
+		}
+		else{
+			geoUpdate(
+					location,
+					geoinfo['city'],
+					geoinfo['country'],
+					geoinfo['pos']
+				)
+		}
+	}
+
+	// Individual location updater
+	function createGeoUpdater(location,i){
+		return Promise.delay(1200+1400*i)
+			.then(()        => Gmap.locationToInfo(location))
+			.then((geoinfo) => saveLocation(geoinfo))
+	}
+
+	// TAODEBUG: Take only first 3
+	locations = locations.filter(validLocation).slice(0,3)
+
+	return Promise.map(locations,createGeoUpdater)
+}
+
 /**
  * Main entry
  */
@@ -68,69 +120,18 @@ function prep(){
 			return MapReduce.allRegions(datasource)
 				.then(function(regions){
 
-					// Strip only unique locations
+					// Strip only unique and contentful locations
 					var locations = _.uniq(_.pluck(regions,'_id'));
-					locations = _.reject(locations,_.isNull);
-					console.log(locations); // TAODEBUG:
+					    locations = _.reject(locations,_.isNull);
 
 					return locations;					
 				})
-				.then(function(locations){
-					
-					function createGeoUpdater(location,i){
-						return Promise.delay(1200+1000*i)
-							.then(() => [location,updateGeolocation(location)])
-					}
-
-					var dbgeo = dbGeo();
-
-					// Delayed update the locations
-					return Promise.map(locations,createGeoUpdater)
-						.then((results) => {
-
-							var geoDb = GeoDB.db(MONGO_SVR,MONGO_DB);
-							var geoUpdate = GeoDB.update(geoDb);
-
-							results.forEach((geolocation) => {
-
-								console.log(geolocation); // TAODEBUG:
-
-								if (geolocation[1].status != 'OK'){
-									console.error(`Could not find location of: ${geolocation[0]}`.red);
-									return null;
-								}
-
-								var location = geolocation[0];
-								var geoinfo  = geolocation[1];
-
-								geoUpdate(
-									location,
-									geoinfo['city'],geoinfo['country'],
-									geoinfo['pos']
-								);
-
-							})
-						})
-				})
+				.then(updateGeoRegions) // Update geolocation mapping to DB
 
 		})
 		.then(() => process.exit(0))
 }
 
-/**
- * From the given physical location,
- * update the geolocation to the collection "geo"
- * @param {String} location/address
- */
-function updateGeolocation(location){
-	if (!!~invalid_locations.indexOf(location)){
-		console.log(`Skip - ${location}`.yellow);
-		return null;
-	}
-
-	console.log('Updating geolocation: '.cyan, location)
-	return Gmap.locationToInfo(location)
-}
 
 
 // Start
