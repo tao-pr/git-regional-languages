@@ -13,6 +13,7 @@ var _         = require('underscore');
 var Promise   = require('bluebird');
 var mongo     = require('mongoskin');
 var MapReduce = require('./mongo/mapreduce.js');
+var GeoDB     = require('./mongo/geodb.js');
 var Gmap      = require('./mapapi/gmap.js');
 
 const MONGO_SVR = 'mongodb://localhost';
@@ -23,9 +24,6 @@ const invalid_locations = [
 		'the internet','the interweb','worldwide'
 	]
 
-function dbGeo(){
-	return mongo.db(MONGO_SVR + '/' + MONGO_DB).collection('geo');
-}
 
 /**
  * Main entry
@@ -89,17 +87,27 @@ function prep(){
 					// Delayed update the locations
 					return Promise.map(locations,createGeoUpdater)
 						.then((results) => {
+
+							var geoDb = GeoDB.db(MONGO_SVR,MONGO_DB);
+							var geoUpdate = GeoDB.update(geoDb);
+
 							results.forEach((geolocation) => {
 
 								console.log(geolocation); // TAODEBUG:
 
-								if (geolocation.status != 'OK')
+								if (geolocation[1].status != 'OK'){
+									console.error(`Could not find location of: ${geolocation[0]}`.red);
 									return null;
+								}
 
-								// TAOTODO: Update the geolocation
 								var location = geolocation[0];
 								var geoinfo  = geolocation[1];
 
+								geoUpdate(
+									location,
+									geoinfo['city'],geoinfo['country'],
+									geoinfo['pos']
+								);
 
 							})
 						})
