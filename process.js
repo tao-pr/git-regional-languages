@@ -100,6 +100,39 @@ function updateGeoRegions(locations){
 }
 
 /**
+ * Collects language distribution over regions
+ * from the MongoDB and produces a density map
+ */
+function generateGeoLanguageDensity(){
+	var geoDb  = GeoDB.db(MONGO_SVR,MONGO_DB);
+	var distDb = mongo.db(MONGO_SVR + '/' + MONGO_DB).collection('distLangByRegion');
+
+	var map = []
+
+	console.log('Generating language density by geolocations...'.green)
+
+	// {lang} is basically a record of "distLangByRegion"
+	function createGeoDensityMap(lang){
+		// TAOTODO:
+		return []
+	}
+
+	return new Promise(function(done,reject){
+		distDb.find({}).toArray(function(err,langs){
+			if (err){
+				console.error('ERROR iterating distLangByRegion:'.red);
+				console.error(err);
+				return reject(err);
+			}
+
+			map = langs.map(createGeoDensityMap)
+
+			done(map)
+		})
+	})
+}
+
+/**
  * Main entry
  */
 function prep(){
@@ -135,8 +168,8 @@ function prep(){
 					return locations;					
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
-
 		})
+		.then(() => generateGeoLanguageDensity())
 		.then(() => process.exit(0))
 }
 
