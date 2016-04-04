@@ -25,6 +25,25 @@ const invalid_locations = [
 	]
 
 /**
+ * Given language raw record from MongoDB,
+ * filter valid ones, and craft a density object
+ */
+function analyseEachLang(language){
+	var _v = Object.keys(language.value)
+		.filter((location) => 
+			!~invalid_locations.indexOf(location.toLowerCase()) &&
+			location.length <= 48
+		)
+		.map((location) => [location,language.value[location]])
+		.filter((n) => !isNaN(n[1]))
+
+	// Sort by density of language written
+	_v = _.sortBy(_v,(n) => -n[1])
+
+	return {language: language._id, dist:_v}
+}
+
+/**
  * Map from location list to associated Geolocations
  * and store them in the DB
  */
@@ -94,23 +113,11 @@ function prep(){
 			// Sort density and remove null location
 			//-----------------------------------------------------
 			console.log('Analysing repo spatial density...'.green)
+			
 			// Remove invalid language object
-			var _dist = dist.filter((language) => language._id != 'message')
-
-			return _dist.map(function(language){
-				var _v = Object.keys(language.value)
-					.filter((location) => 
-						!~invalid_locations.indexOf(location.toLowerCase()) &&
-						location.length <= 48
-					)
-					.map((location) => [location,language.value[location]])
-					.filter((n) => !isNaN(n[1]))
-
-				// Sort by density of language written
-				_v = _.sortBy(_v,(n) => -n[1])
-
-				return {language: language._id, dist:_v}
-			})
+			return dist
+				.filter((language) => language._id != 'message')
+				.map(analyseEachLang)
 		})
 		.then(function (dist){
 			
