@@ -107,29 +107,46 @@ function generateGeoLanguageDensity(){
 	var geoDb  = GeoDB.db(MONGO_SVR,MONGO_DB);
 	var distDb = mongo.db(MONGO_SVR + '/' + MONGO_DB).collection('distLangByRegion');
 
-	var map = []
-
 	console.log('Generating language density by geolocations...'.green)
 
 	// {lang} is basically a record of "distLangByRegion"
-	function createGeoDensityMap(lang){
-		// TAOTODO:
-		return []
+	function createGeoDensityMap(locationMapping){
+		return function(lang){
+			var takeGeolocation = function(location){
+				if (locationMapping.hasOwnProperty(location)){
+					var pos     = locationMapping[location];
+					var density = lang.value[location];
+					if (pos != null)
+						return [pos.lat,pos.lng,density]
+					else
+						return null;
+				}
+				else
+					return null;
+			}
+			var geolocations = Object.keys(lang.value).map(takeGeolocation);
+
+			geolocations = _.reject(geolocations,_.isNull);
+			return {lang: lang, coords: geolocations};
+		}
 	}
 
-	return new Promise(function(done,reject){
-		distDb.find({}).toArray(function(err,langs){
-			if (err){
-				console.error('ERROR iterating distLangByRegion:'.red);
-				console.error(err);
-				return reject(err);
-			}
+	return GeoDB.listLocationMapping(geoDb)
+		.then(function(locationMapping){
+			return new Promise(function(done,reject){
+				distDb.find({}).toArray(function(err,langs){
+					if (err){
+						console.error('ERROR iterating distLangByRegion:'.red);
+						console.error(err);
+						return reject(err);
+					}
 
-			map = langs.map(createGeoDensityMap)
-
-			done(map)
+					var map = langs.map(createGeoDensityMap(locationMapping))
+					done(map)
+				})
+			})
 		})
-	})
+
 }
 
 /**
@@ -170,6 +187,7 @@ function prep(){
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
 		.then(() => generateGeoLanguageDensity())
+		.then((geomap) => {})// TAOTODO: Generate final output
 		.then(() => process.exit(0))
 }
 

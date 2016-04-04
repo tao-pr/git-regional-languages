@@ -48,11 +48,32 @@ GeoDB.update = function(db){
 	}
 }
 
+/**
+ * @return {Array} of location string
+ */
 GeoDB.listLocations = function(db){
 	return new Promise(function(done,reject){
 		db.find({}).toArray(function(err,n){
 			if (err) reject(err);
 			else done(_.pluck(n,'location'));
+		})
+	})
+}
+
+/**
+ * @return {Object} hash-table-like which maps location -> geolocation
+ */ 
+GeoDB.listLocationMapping = function(db){
+	return new Promise(function(done,reject){
+		db.find({}).toArray(function(err,n){
+			if (err) reject(err);
+			else {
+				var mapping = {}
+				n.forEach((m) => {
+					mapping[m.location] = m.pos
+				})
+				return done(mapping)
+			}
 		})
 	})
 }
