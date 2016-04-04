@@ -146,7 +146,10 @@ function generateGeoLanguageDensity(){
 				})
 			})
 		})
+}
 
+function generateHtml(densityMapping){
+	// TAOTODO:
 }
 
 /**
@@ -186,8 +189,8 @@ function prep(){
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
-		.then(() => generateGeoLanguageDensity())
-		.then((geomap) => {})// TAOTODO: Generate final output
+		.then(generateGeoLanguageDensity)
+		.then(generateHtml)
 		.then(() => process.exit(0))
 }
 
