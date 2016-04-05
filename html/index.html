@@ -69,7 +69,7 @@
 
 		// Add deferred loaded script
 		var script = document.createElement('script');
-		var url = "https://maps.googleapis.com/maps/api/js?key=getApiKey()&libraries=visualization&callback=initMap";
+		var url = "https://maps.googleapis.com/maps/api/js?key=getApiKey()&libraries=visualization&callback=initMap"; // TAOTODO: Load and place google API key in the URL
 		script.setAttribute('src',url);
 		script.setAttribute('async');
 		script.setAttribute('defer');
