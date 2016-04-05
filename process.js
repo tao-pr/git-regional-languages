@@ -12,6 +12,7 @@ var colors    = require('colors');
 var _         = require('underscore');
 var Promise   = require('bluebird');
 var mongo     = require('mongoskin');
+var fs = require('fs');
 var MapReduce = require('./mongo/mapreduce.js');
 var GeoDB     = require('./mongo/geodb.js');
 var Gmap      = require('./mapapi/gmap.js');
@@ -142,14 +143,33 @@ function generateGeoLanguageDensity(){
 					}
 
 					var map = langs.map(createGeoDensityMap(locationMapping))
-					done(map)
+					return done(map)
 				})
 			})
 		})
 }
 
-function generateHtml(densityMapping){
-	// TAOTODO:
+/**
+ * Generate an output Javascript file
+ * which embeds the language density mapping data
+ */
+function generateJs(outputJs){
+	return function(densityMapping){
+		console.log('Generating embeded JS data...'.green);
+
+		return new Promise(function(done,reject){
+			var jsonData = JSON.stringify(densityMapping);
+			var content = `function getDist(){ return ${jsonData}}`;
+			fs.writeFile(outputJs,content,function(err){
+				if (err){
+					console.error('ERROR writing output JS :'.red,outputJs);
+					console.error(err);
+					return reject(err)
+				}
+				return done(densityMapping)
+			})
+		})
+	}
 }
 
 /**
@@ -185,12 +205,12 @@ function prep(){
 					var locations = _.uniq(_.pluck(regions,'_id'));
 					    locations = _.reject(locations,_.isNull);
 
-					return locations;					
+					return locations;			
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
 		.then(generateGeoLanguageDensity)
-		.then(generateHtml)
+		.then(generateJs('html/js/dist.js'))
 		.then(() => process.exit(0))
 }
 
