@@ -1,5 +1,7 @@
 <html>
 	<head>
+		<title>Github Language Distribution On Earth</title>
+		<link rel="stylesheet" type="text/css" href="./css/dist.css">
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script type="text/javascript" src="./js/dist.js"></script>
@@ -7,7 +9,6 @@
 			// TAOTODO: Render the map here
 
 			var map = null;
-			var heatMap = null;
 
 			function initMap() {
 				map = new google.maps.Map(document.getElementById('map'), {
@@ -18,8 +19,8 @@
 
 				// TAOTODO: Draw heat map separately 
 				// for each individual language
-				heatmap = new google.maps.visualization.HeatmapLayer({
-					data: getDist(),
+				var heatmap = new google.maps.visualization.HeatmapLayer({
+					data: getDistByLang('Ruby'),
 					map: map
 				});
 			}
@@ -48,17 +49,34 @@
 				heatmap.set('gradient',heatmap.get('gradient') ? null : _gradients)
 			}
 
-			function getDist(lang){
-				// TAOTODO: Load the distribution records from JSON
-
-
+			function makeGoogleCoord(coord){
+				// TAOTODO: Generate cloud point based on density
+				var density = coord[2];
+				return new google.maps.LatLng(coord[0],coord[1])
 			}
 
+			function getDistByLang(lang){
+				// TAOTODO: Load the distribution records from JSON
+				var allDist = getDist();
+				var dist = allDist.filter((n) => n._id==lang);
+				if (dist.length==0){
+					console.error('Unknown language : ',lang);
+					return false;
+				}
 
+				return dist.coords.map(makeGoogleCoord);
+			}
 
+		// Add deferred loaded script
+		var script = document.createElement('script');
+		var url = "https://maps.googleapis.com/maps/api/js?key=getApiKey()&libraries=visualization&callback=initMap";
+		script.setAttribute('src',url);
+		script.setAttribute('async');
+		script.setAttribute('defer');
+		document.body.appendChild(script);
 		</script>
 	</head>
 	<body>
-		
+		<div id="map"></div>
 	</body>
 </script>
