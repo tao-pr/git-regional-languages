@@ -69,6 +69,7 @@
 
 		// Add deferred loaded script
 		$(document).ready(function(){
+			console.log('Injecting Google Map API ...');
 			var script = document.createElement('script');
 			var url = "https://maps.googleapis.com/maps/api/js?key=";
 			url += getAPIKey();
