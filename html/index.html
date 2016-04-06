@@ -56,15 +56,14 @@
 			}
 
 			function getDistByLang(lang){
-				// TAOTODO: Load the distribution records from JSON
 				var allDist = getDist();
-				var dist = allDist.filter((n) => n._id==lang);
+				var dist = allDist.filter((n) => n.lang._id==lang);
 				if (dist.length==0){
 					console.error('Unknown language : ',lang);
 					return false;
 				}
 
-				return dist.coords.map(makeGoogleCoord);
+				return dist[0].coords.map(makeGoogleCoord);
 			}
 
 		// Add deferred loaded script
