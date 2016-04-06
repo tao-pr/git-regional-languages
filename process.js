@@ -173,6 +173,24 @@ function generateJs(outputJs){
 }
 
 /**
+ * Port the Google API key to the specified path
+ */
+function portGoogleAPIKey(outputPath){
+	return new Promise(function(done,reject){
+		var apiKey = fs.readFileSync('./GOOGLE-API-KEY','utf-8');
+		var content = `function getAPIKey(){ return '${apiKey}'}`
+		fs.writeFile(outputPath,content,function(err){
+			if (err){
+				console.error('ERROR writing API key JS : '.red,outputPath);
+				console.error(err);
+				return reject(err)
+			}
+			return done()
+		})
+	})
+}
+
+/**
  * Main entry
  */
 function prep(){
@@ -211,6 +229,7 @@ function prep(){
 		})
 		.then(generateGeoLanguageDensity)
 		.then(generateJs('html/js/dist.js'))
+		.then(() => portGoogleAPIKey('html/js/gapi.js'))
 		.then(() => process.exit(0))
 }
 

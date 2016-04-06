@@ -34,7 +34,6 @@ API access. You'll need to generate your own API key
 can place it in a text file named `GOOGLE-API-KEY`, 
 put it in the root directory of the repo.
 
-
 ### Prepare your MongoDB
 
 To set your data storage, create a DB named `gitlang`. 
