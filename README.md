@@ -45,3 +45,71 @@ store the data and you can make [up to 5000 requests](https://developer.github.c
 in a span of one hour.
 
 ---
+
+## Download GitHub data
+
+Run the following script to download a batch of repository data 
+via Github API:
+
+```
+$ python3 download.py
+```
+
+**NOTE:** Adjust the number of batch, the range of repos to download 
+right in the file `download.py` yourself. 
+The script will download the batch repository data and 
+store them in the MongoDB.
+
+| DB/Collection | data storage |
+|------------------|----------------|
+| gitlang/repos | Github repositories data with the location of owners |
+
+
+---
+
+## Process the repositories
+
+We have a script to process the entire bulk of downloaded repository 
+data in MongoDB, generate the geospatial distribution of languages 
+written in each repository. Execute the following script:
+
+```
+$ node process.js
+```
+
+>**Why Node?** 
+>
+> In case a question has popped up in your mind, 
+> Node.js natively communicates with `MongoDB` and 
+> JavaScript works well with `GoogleMAP API`. That's why.
+
+### What process.js does?
+
+Following tasks are sequentially run:
+
+	[1] Maps repository data from the collection `repos` to distributions of languages by regions, store them in the collection `distLangByRegion` and list all regions in `regions`.
+
+	[2] Fetches *Geolocations* of all regions of repos.
+
+	[3] Saves all Geolocations to MongoDB: collection `geo`.
+
+	[4] Aligns all languages available in `distLangByRegion` with the geospatial distribution data. Maps the output in to the JS file under `html\js\dist.js`.
+
+	[5] Saves the **GoogleAPI Key** to `html/js/gapi.js`.
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
