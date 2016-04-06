@@ -9,20 +9,27 @@
 		<script type="text/javascript" src="./js/gapi.js"></script>
 		<script>
 			var map = null;
+			var currentHeatMap = null;
 
 			function initMap() {
 				map = new google.maps.Map(document.getElementById('map'), {
-					zoom: 13,
-					center: {lat: 37.775, lng: -122.434},
+					zoom: 2,
+					center: {lat: 22.63929637837135, lng: -36.53190039062497},
 					mapTypeId: google.maps.MapTypeId.SATELLITE
 				});
+			}
 
-				// TAOTODO: Draw heat map separately 
-				// for each individual language
+			function renderLang(lang){
+				console.log('Rendering... ' + lang);
+
 				var heatmap = new google.maps.visualization.HeatmapLayer({
-					data: getDistByLang('Ruby'),
+					data: getDistByLang(lang),
 					map: map
 				});
+
+				if (currentHeatMap != null)
+					currentHeatMap.setMap(null);
+				currentHeatMap = heatmap;
 			}
 
 			function toggleHeatmap(heatmap) {
@@ -52,7 +59,16 @@
 			function makeGoogleCoord(coord){
 				// TAOTODO: Generate cloud point based on density
 				var density = coord[2];
+				/*return new google.maps.visualization.WeightedLocation(
+						coord[0],
+						coord[1],
+						density
+					);*/
 				return new google.maps.LatLng(coord[0],coord[1])
+			}
+
+			function getAllLangs(){
+				return getDist().map((n) => n.lang._id);
 			}
 
 			function getDistByLang(lang){
@@ -68,6 +84,7 @@
 
 		// Add deferred loaded script
 		$(document).ready(function(){
+			// Load Google Map visualisation API
 			console.log('Injecting Google Map API ...');
 			var script = document.createElement('script');
 			var url = "https://maps.googleapis.com/maps/api/js?key=";
@@ -77,10 +94,20 @@
 			script.setAttribute('async','');
 			script.setAttribute('defer','');
 			document.head.appendChild(script);
+
+			// Render list of available language selection
+			var langs = getAllLangs();
+			langs.forEach((n) => {
+				var opt = $('<option value="'+n+'">'+n+'</option>');
+				$('#panel-lang select').first().append(opt)
+			})
 		})
 		</script>
 	</head>
 	<body>
+		<div id="panel-lang">
+			<select size="32" onchange="renderLang(this.value)"></select>
+		</div>
 		<div id="map"></div>
 	</body>
 </script>
