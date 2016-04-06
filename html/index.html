@@ -3,7 +3,7 @@
 		<title>Github Language Distribution On Earth</title>
 		<link rel="stylesheet" type="text/css" href="./css/dist.css">
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 		<script type="text/javascript" src="./js/dist.js"></script>
 		<script type="text/javascript" src="./js/gapi.js"></script>
@@ -24,16 +24,13 @@
 
 				var heatmap = new google.maps.visualization.HeatmapLayer({
 					data: getDistByLang(lang),
-					map: map
+					map: map,
+					radius: 30
 				});
 
 				if (currentHeatMap != null)
 					currentHeatMap.setMap(null);
 				currentHeatMap = heatmap;
-			}
-
-			function toggleHeatmap(heatmap) {
-				heatmap.setMap(heatmap.getMap() ? null : map);
 			}
 
 			function gradient(heatmap){
@@ -57,14 +54,17 @@
 			}
 
 			function makeGoogleCoord(coord){
-				// TAOTODO: Generate cloud point based on density
 				var density = coord[2];
 				/*return new google.maps.visualization.WeightedLocation(
 						coord[0],
 						coord[1],
 						density
 					);*/
-				return new google.maps.LatLng(coord[0],coord[1])
+				return {
+					location:new google.maps.LatLng(coord[0],coord[1]),
+					weight: density
+				}
+				//return new google.maps.LatLng(coord[0],coord[1])
 			}
 
 			function getAllLangs(){
