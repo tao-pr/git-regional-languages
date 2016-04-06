@@ -87,15 +87,15 @@ $ node process.js
 
 Following tasks are sequentially run:
 
-	[1] Maps repository data from the collection `repos` to distributions of languages by regions, store them in the collection `distLangByRegion` and list all regions in `regions`.
+[1] Maps repository data from the collection `repos` to distributions of languages by regions, store them in the collection `distLangByRegion` and list all regions in `regions`.
 
-	[2] Fetches *Geolocations* of all regions of repos.
+[2] Fetches *Geolocations* of all regions of repos.
 
-	[3] Saves all Geolocations to MongoDB: collection `geo`.
+[3] Saves all Geolocations to MongoDB: collection `geo`.
 
-	[4] Aligns all languages available in `distLangByRegion` with the geospatial distribution data. Maps the output in to the JS file under `html\js\dist.js`.
+[4] Aligns all languages available in `distLangByRegion` with the geospatial distribution data. Maps the output in to the JS file under `html\js\dist.js`.
 
-	[5] Saves the **GoogleAPI Key** to `html/js/gapi.js`.
+[5] Saves the **GoogleAPI Key** to `html/js/gapi.js`.
 
 ---
 

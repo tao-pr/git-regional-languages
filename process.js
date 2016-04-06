@@ -177,7 +177,7 @@ function generateJs(outputJs){
  */
 function portGoogleAPIKey(outputPath){
 	return new Promise(function(done,reject){
-		var apiKey = fs.readFileSync('./GOOGLE-API-KEY','utf-8');
+		var apiKey = fs.readFileSync('./GOOGLE-API-KEY','utf-8').trim();
 		var content = `function getAPIKey(){ return '${apiKey}'}`
 		fs.writeFile(outputPath,content,function(err){
 			if (err){

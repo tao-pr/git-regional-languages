@@ -3,11 +3,11 @@
 		<title>Github Language Distribution On Earth</title>
 		<link rel="stylesheet" type="text/css" href="./css/dist.css">
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-		<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 		<script type="text/javascript" src="./js/dist.js"></script>
+		<script type="text/javascript" src="./js/gapi.js"></script>
 		<script>
-			// TAOTODO: Render the map here
-
 			var map = null;
 
 			function initMap() {
@@ -68,12 +68,16 @@
 			}
 
 		// Add deferred loaded script
-		var script = document.createElement('script');
-		var url = "https://maps.googleapis.com/maps/api/js?key=getApiKey()&libraries=visualization&callback=initMap"; // TAOTODO: Load and place google API key in the URL
-		script.setAttribute('src',url);
-		script.setAttribute('async');
-		script.setAttribute('defer');
-		document.body.appendChild(script);
+		$(document).ready(function(){
+			var script = document.createElement('script');
+			var url = "https://maps.googleapis.com/maps/api/js?key=";
+			url += getAPIKey();
+			url += "&libraries=visualization&callback=initMap";
+			script.setAttribute('src',url);
+			script.setAttribute('async','');
+			script.setAttribute('defer','');
+			document.head.appendChild(script);
+		})
 		</script>
 	</head>
 	<body>
