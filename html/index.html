@@ -11,12 +11,29 @@
 			var map = null;
 			var currentHeatMap = null;
 
+			var styles = [
+				{
+					featureType:'administrative',
+					stylers:[{visibility:'off'}]
+				},
+				{
+					featureType:'water',
+					elementType:'labels',
+					stylers:[{visibility:'off'}]
+				},
+				{
+					featureType:'all',
+					stylers:[{hue:'#3055CC'}]
+				}
+			]
+
 			function initMap() {
 				map = new google.maps.Map(document.getElementById('map'), {
 					zoom: 2,
 					center: {lat: 22.63929637837135, lng: -36.53190039062497},
-					mapTypeId: google.maps.MapTypeId.SATELLITE
+					mapTypeId: google.maps.MapTypeId.TERRAIN
 				});
+				map.setOptions({styles:styles})
 			}
 
 			function renderLang(lang){
