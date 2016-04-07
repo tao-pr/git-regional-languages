@@ -72,16 +72,10 @@
 
 			function makeGoogleCoord(coord){
 				var density = coord[2];
-				/*return new google.maps.visualization.WeightedLocation(
-						coord[0],
-						coord[1],
-						density
-					);*/
 				return {
 					location:new google.maps.LatLng(coord[0],coord[1]),
 					weight: density
 				}
-				//return new google.maps.LatLng(coord[0],coord[1])
 			}
 
 			function getAllLangs(){

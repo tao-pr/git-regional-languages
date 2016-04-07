@@ -12,7 +12,6 @@ var Promise  = require('bluebird');
 
 const API_ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json?";
 
-// TAOTODO: Path should related to the script dir
 const dirCurrent   = require('path').dirname(__filename) + '/';
 const PATH_API_KEY = dirCurrent + "../GOOGLE-API-KEY";
 
