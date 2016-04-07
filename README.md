@@ -101,6 +101,28 @@ Following tasks are sequentially run:
 
 ---
 
+## See the visualisation
+
+After having the entire processes run correctly in sequence 
+as described eariler, the output HTML is ready to access via:
+
+```
+html/index.html
+```
+
+Just open it up in your favourite browser to see the visualisation.
+
+### Why my languages don't display any heatmap?
+
+In case there exists some repositories on Github which 
+are written in a particular language, it will be listed. 
+However, we are unable to spot where the code has been written 
+if the authors of those repositories don't indicate 
+their location in their profile. That's why some languages 
+are left unplotted even though they are correctly listed.
+
+---
+
 
 
 
