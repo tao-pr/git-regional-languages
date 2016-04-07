@@ -7,6 +7,14 @@ in some particular regions. Let's find out.
 
 ---
 
+![screenshot-01](media/ss1.jpg)
+
+![screenshot-02](media/ss2.jpg)
+
+![screenshot-03](media/ss3.jpg)
+
+---
+
 ## Getting started
 
 Prerequisites:
