@@ -1,4 +1,4 @@
-"use stricts";
+"use strict";
 /**
  * Github regional language distribution processor
  *
