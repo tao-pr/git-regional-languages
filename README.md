@@ -7,11 +7,9 @@ in some particular regions. Let's find out.
 
 ---
 
-![screenshot-01](media/ss1.jpg)
+![screenshot-01](media/apacheconf.jpg)
 
-![screenshot-02](media/ss2.jpg)
-
-![screenshot-03](media/ss3.jpg)
+![screenshot-02](media/perl.jpg)
 
 ---
 
@@ -131,6 +129,25 @@ are left unplotted even though they are correctly listed.
 
 ---
 
+![screenshot-04](media/applescript.jpg)
+
+![screenshot-03](media/commonlisp.jpg)
+
+![screenshot-03](media/elixir.jpg)
+
+![screenshot-03](media/go.jpg)
+
+![screenshot-03](media/lasso.jpg)
+
+![screenshot-03](media/groovy.jpg)
+
+![screenshot-03](media/standardml.jpg)
+
+---
+
+## License
+
+MIT
 
 
 
