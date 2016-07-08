@@ -8,6 +8,7 @@ Download raw data to DB
 from gitapi import datamine
 from termcolor import colored
 from pymongo import MongoClient
+import pymongo
 
 def init_mongo(host,dbname,collection):
 	cl = MongoClient('{0}:27017/'.format(host))
@@ -15,12 +16,20 @@ def init_mongo(host,dbname,collection):
 	return db[collection]
 
 
+def get_recent_repo_id(collection):
+	if collection.count()==0:
+		return 0
+	return collection.find().sort('_id',pymongo.DESCENDING)[0]['id']
+
+
 if __name__ == '__main__':
 	
 	# Sequentially download the data to MongoDB
-	repo_start_id = 163086 #NOTE: Set to `None` to download from very beginning
-	num_batch = 16
 	mongo = init_mongo('mongodb://localhost','gitlang','repos')
+	repo_start_id = get_recent_repo_id(mongo)
+	num_batch = 16
+
+	print(colored("Start downloading from #{0}".format(repo_start_id),"cyan"))
 
 	while num_batch>0:
 		print(colored("******* #{0} BATCHES TO GO *********".format(num_batch),'cyan'))
