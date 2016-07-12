@@ -1,4 +1,4 @@
-package gitdistsource
+package gitlang
 
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{ SQLContext, DataFrame }
@@ -15,10 +15,21 @@ object DistDataSource {
     val sqlsc = new SQLContext(sc)
 
     // Read in the JSON file
+    println(Console.CYAN + s"Reading JSON file : ${path}" + Console.RESET)
     val dists = sqlsc.jsonFile(path)
 
     // Set up a temporary table
     dists.registerTempTable("dists")
     dists
+  }
+
+  /**
+   * Get the full list of the languages from the underlying SQL context
+   * @param {SQLContext}
+   */
+  def getLanguageList(sqlsc: SQLContext): List[String] = {
+
+    // TAOTODO:
+    List()
   }
 }
