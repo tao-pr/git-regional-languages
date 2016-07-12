@@ -37,6 +37,16 @@ def get_repo_owner_and_langs(since=None):
 def get_user_info(usr):
 	user = get.user(usr)
 
+	if 'login' not in user:
+		return {
+			'login':     None,
+			'type':      None,
+			'name':      None,
+			'location':  "",
+			'repos':     0,
+			'followers': 0
+		}
+
 	# Take the brief info
 	return {
 		'login':	      user['login'],
