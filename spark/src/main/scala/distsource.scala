@@ -1,7 +1,7 @@
 package gitdistsource
 
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{ SQLContext, DataFrame }
 
 object DistDataSource {
 
@@ -10,7 +10,7 @@ object DistDataSource {
    * @param {SparkContext} underlying Spark context instance
    * @param {String} physical path to a JSON file containing distribution data
    */
-  def readJSON(sc: SparkContext, path: String) {
+  def readJSON(sc: SparkContext, path: String): DataFrame = {
     // Initialise a new SQL context from the underlying Spark context
     val sqlsc = new SQLContext(sc)
 
