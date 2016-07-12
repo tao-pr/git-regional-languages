@@ -9,7 +9,6 @@ scalaVersion   := "2.11.8"
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature", "-Xlint")
 
 libraryDependencies ++= Seq(
-  "com.nrinaudo" %% "kantan.csv" % "0.1.9",
   "com.typesafe" % "config" % "1.3.0"
 )
 
