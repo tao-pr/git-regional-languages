@@ -8,16 +8,19 @@ object Core extends App {
   import org.apache.spark.SparkContext
   import java.io._
 
-  // TAOTODO:
-
   // Initialise a local Spark context
   val sc = new SparkContext("local", "gitlang")
 
   // Reads in the "dist.json" distribution data file
   val distjson = new File("src/main/resources/dist.json")
-  val sqlsc = DistDataSource.readJSON(sc, distjson.getAbsolutePath())
-  val dists = DistDataSource.getDistributionByLanguage(sqlsc, true)
+  val sqlctx = DistDataSource.readJSON(sc, distjson.getAbsolutePath())
+  val dists = DistDataSource.getDistributionByLanguage(sqlctx, true)
 
   // Filter only those languages with distributions
   val dists_ = dists.filter("SIZE(coords)>0")
+
+  // Accumulate the entire universe of the distributions
+  val universe = Analysis.accumAllDists(sqlctx, dists_)
+
+  // TAOTODO: Pass over the distibution data for numerical analysis
 }

@@ -3,6 +3,11 @@ package gitlang
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{ SQLContext, DataFrame, Row }
 
+/**
+ * Geospatial distribution data source, responsible for following:
+ * [x] - Facilitates the JSON data source
+ * [x] - Data wrangling
+ */
 object DistDataSource {
 
   /**
@@ -12,22 +17,22 @@ object DistDataSource {
    */
   def readJSON(sc: SparkContext, path: String): SQLContext = {
     // Initialise a new SQL context from the underlying Spark context
-    val sqlsc = new SQLContext(sc)
+    val sqlctx = new SQLContext(sc)
 
     // Read in the JSON file
     println(Console.CYAN + s"Reading JSON file : ${path}" + Console.RESET)
-    val dists = sqlsc.jsonFile(path)
+    val dists = sqlctx.jsonFile(path)
 
     // Set up a temporary table
     dists.registerTempTable("dists")
-    sqlsc
+    sqlctx
   }
 
   /**
    * Get the list of the programming languages
    */
-  def getLanguages(sqlsc: SQLContext, verbose: Boolean): Array[Row] = {
-    val langs = sqlsc.sql("SELECT lang._id from dists")
+  def getLanguages(sqlctx: SQLContext, verbose: Boolean): Array[Row] = {
+    val langs = sqlctx.sql("SELECT lang._id from dists")
     if (verbose) {
       println(Console.CYAN + "** LANGS **" + Console.RESET)
       langs.printSchema()
@@ -37,8 +42,12 @@ object DistDataSource {
     langs.collect()
   }
 
-  def getDistributionByLanguage(sqlsc: SQLContext, verbose: Boolean): DataFrame = {
-    val dist = sqlsc.sql("SELECT lang._id as lang, coords from dists")
+  /**
+   * Get the raw distribution of code contribution by language
+   * over geospatial regions
+   */
+  def getDistributionByLanguage(sqlctx: SQLContext, verbose: Boolean): DataFrame = {
+    val dist = sqlctx.sql("SELECT lang._id as lang, coords from dists")
     if (verbose) {
       println(Console.CYAN + "** DISTS **" + Console.RESET)
       dist.show()
