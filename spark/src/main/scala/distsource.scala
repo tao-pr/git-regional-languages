@@ -1,7 +1,7 @@
 package gitlang
 
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.{ SQLContext, DataFrame }
+import org.apache.spark.sql.{ SQLContext, DataFrame, Row }
 
 object DistDataSource {
 
@@ -10,7 +10,7 @@ object DistDataSource {
    * @param {SparkContext} underlying Spark context instance
    * @param {String} physical path to a JSON file containing distribution data
    */
-  def readJSON(sc: SparkContext, path: String): DataFrame = {
+  def readJSON(sc: SparkContext, path: String): SQLContext = {
     // Initialise a new SQL context from the underlying Spark context
     val sqlsc = new SQLContext(sc)
 
@@ -20,16 +20,23 @@ object DistDataSource {
 
     // Set up a temporary table
     dists.registerTempTable("dists")
-    dists
+    sqlsc
   }
 
   /**
-   * Get the full list of the languages from the underlying SQL context
-   * @param {SQLContext}
+   * Get the list of the programming languages
    */
-  def getLanguageList(sqlsc: SQLContext): List[String] = {
+  def getLanguages(sqlsc: SQLContext): Array[Row] = {
+    val langs = sqlsc.sql("SELECT lang._id from dists")
+    langs.collect()
+  }
 
-    // TAOTODO:
-    List()
+  def getDistributionByLanguage(sqlsc: SQLContext): Array[Row] = {
+    val dist = sqlsc.sql("SELECT lang._id as lang, coords from dists")
+    // TAODEBUG:
+    dist.show()
+    dist.printSchema()
+
+    dist.collect()
   }
 }

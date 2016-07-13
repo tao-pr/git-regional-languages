@@ -15,7 +15,6 @@ object Core extends App {
 
   // Reads in the "dist.json" distribution data file
   val distjson = new File("src/main/resources/dist.json")
-  val dataDist = DistDataSource.readJSON(sc, distjson.getAbsolutePath())
-
-  dataDist.show()
+  val sqlsc = DistDataSource.readJSON(sc, distjson.getAbsolutePath())
+  val dists = DistDataSource.getDistributionByLanguage(sqlsc)
 }
