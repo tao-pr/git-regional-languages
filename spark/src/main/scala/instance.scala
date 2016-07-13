@@ -16,5 +16,8 @@ object Core extends App {
   // Reads in the "dist.json" distribution data file
   val distjson = new File("src/main/resources/dist.json")
   val sqlsc = DistDataSource.readJSON(sc, distjson.getAbsolutePath())
-  val dists = DistDataSource.getDistributionByLanguage(sqlsc)
+  val dists = DistDataSource.getDistributionByLanguage(sqlsc, true)
+
+  // Filter only those languages with distributions
+  val dists_ = dists.filter("SIZE(coords)>0")
 }

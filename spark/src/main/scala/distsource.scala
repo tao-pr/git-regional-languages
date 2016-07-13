@@ -26,17 +26,25 @@ object DistDataSource {
   /**
    * Get the list of the programming languages
    */
-  def getLanguages(sqlsc: SQLContext): Array[Row] = {
+  def getLanguages(sqlsc: SQLContext, verbose: Boolean): Array[Row] = {
     val langs = sqlsc.sql("SELECT lang._id from dists")
+    if (verbose) {
+      println(Console.CYAN + "** LANGS **" + Console.RESET)
+      langs.printSchema()
+      langs.show()
+    }
+
     langs.collect()
   }
 
-  def getDistributionByLanguage(sqlsc: SQLContext): Array[Row] = {
+  def getDistributionByLanguage(sqlsc: SQLContext, verbose: Boolean): DataFrame = {
     val dist = sqlsc.sql("SELECT lang._id as lang, coords from dists")
-    // TAODEBUG:
-    dist.show()
-    dist.printSchema()
+    if (verbose) {
+      println(Console.CYAN + "** DISTS **" + Console.RESET)
+      dist.show()
+      dist.printSchema()
+    }
 
-    dist.collect()
+    dist
   }
 }
