@@ -30,6 +30,7 @@ Prerequisites:
 - [x] Python 3.4+
 - [x] Node.js 4.x+
 - [x] Scala with SBT build tool
+- [x] Apache Spark (local instance)
 
 
 Since it uses [github API](https://developer.github.com/v3), 
@@ -81,6 +82,7 @@ store them in the MongoDB.
 | DB/Collection | data storage |
 |------------------|----------------|
 | gitlang/repos | Github repositories data with the location of owners |
+| gitlang/geo | Mapping between geolocation and territory |
 
 
 ---
