@@ -61,10 +61,61 @@ object Analysis {
    * Compute a bin vector from the given geospatial distribution data
    * @param {SQLContext}
    * @param {DataFrame} current distribution data
+   * @param {Map[SpatialLocation, Long]} global distribution map, as bin reference
+   * @return {Map} language => [List of [bins]]
    */
-  def geodistToBins(sqlctx: SQLContext, dists: DataFrame): Map[Int, Float] = {
-    // TAOTODO:
-    val map = Map.empty[Int, Float]
+  def geoDistToBins(sqlctx: SQLContext, dists: DataFrame, globalDist: Map[SpatialLocation, Long]): Map[String, Array[Long]] = {
+
+    var map = Map.empty[String, Array[Long]]
+      .withDefaultValue(Array())
+
+    val binLength = globalDist.keys.size
+
+    println(Console.CYAN + "**************")
+    println(s"Bin size := ${binLength}")
+    println("**************" + Console.RESET)
+
+    // Prepare the mapping from [SpatialLocation] => [bin index]
+    val mapBinIndex = Map.empty[SpatialLocation, Int]
+    globalDist.keys.foldLeft(mapBinIndex) { (mapBinIndex, key) =>
+      mapBinIndex(key) = mapBinIndex.keys.size
+      mapBinIndex
+    }
+
+    // Iterate through each language's row
+    dists.collect().foreach { langRow =>
+
+      val lang = langRow.getAs[String](0)
+      val elements = langRow.getAs[WrappedArray[WrappedArray[Any]]](1)
+
+      // Prepare the map key [lang]
+      // with initial zero bin vector
+      map(lang) = Array.fill(binLength)(0)
+
+      // Iterate through each element of the distributions of language
+      elements.foreach { (components) =>
+        val lat = components.apply(0) match {
+          case s: String => s.toDouble
+        }
+        val lng = components.apply(1) match {
+          case s: String => s.toDouble
+        }
+        val dense = components.apply(2) match {
+          case s: String => try {
+            s.toInt
+          } catch {
+            case e: Exception => 0
+          }
+        }
+
+        // Accumulate the bin vector
+        if (dense > 0) {
+          val location = SpatialLocation(lat, lng)
+          val index = mapBinIndex(location)
+          map(lang)(index) += dense
+        }
+      }
+    }
 
     map
   }
