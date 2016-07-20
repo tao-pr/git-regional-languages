@@ -1,5 +1,12 @@
 # Git Regional Languages
 
+> Have you ever wonder how the geospatial distribution of the programming 
+languages would look like? I do so I made this.
+
+---
+
+## Synopsis
+
 More famous languages may be written everywhere 
 in the world, yet the languages with lesser users 
 may probably tend to be epidemic or popular 
@@ -22,6 +29,8 @@ Prerequisites:
 - [x] MongoDB
 - [x] Python 3.4+
 - [x] Node.js 4.x+
+- [x] Scala with SBT build tool
+- [x] Apache Spark (local instance)
 
 
 Since it uses [github API](https://developer.github.com/v3), 
@@ -56,6 +65,8 @@ in a span of one hour.
 
 ## Download GitHub data
 
+> You can skip this, the distribution data is ready out of the box.
+
 Run the following script to download a batch of repository data 
 via Github API:
 
@@ -71,6 +82,7 @@ store them in the MongoDB.
 | DB/Collection | data storage |
 |------------------|----------------|
 | gitlang/repos | Github repositories data with the location of owners |
+| gitlang/geo | Mapping between geolocation and territory |
 
 
 ---
@@ -107,7 +119,7 @@ Following tasks are sequentially run:
 
 ---
 
-## See the visualisation
+## See the geospatial distribution visualisation
 
 After having the entire processes run correctly in sequence 
 as described eariler, the output HTML is ready to access via:
@@ -117,6 +129,7 @@ html/index.html
 ```
 
 Just open it up in your favourite browser to see the visualisation.
+
 
 ### Why my languages don't display any heatmap?
 

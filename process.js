@@ -150,6 +150,27 @@ function generateGeoLanguageDensity(){
 }
 
 /**
+ * Generate an output geospatial JSON file
+ */
+function generateJson(outputJson){
+	return function (densityMapping){
+		console.log('Generating JSON data...'.green);
+
+		return new Promise(function(done,reject){
+			var jsonData = JSON.stringify(densityMapping);
+			fs.writeFile(outputJson,jsonData,function(err){
+				if (err){
+					console.error('ERROR writing output JSON :'.red,outputJson);
+					console.error(err);
+					return reject(err)
+				}
+				return done(densityMapping)
+			})
+		})
+	}
+}
+
+/**
  * Generate an output Javascript file
  * which embeds the language density mapping data
  */
@@ -228,6 +249,7 @@ function prep(){
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
 		.then(generateGeoLanguageDensity)
+		.then(generateJson('spark/src/main/resources/dist.json'))
 		.then(generateJs('html/js/dist.js'))
 		.then(() => portGoogleAPIKey('html/js/gapi.js'))
 		.then(() => process.exit(0))
