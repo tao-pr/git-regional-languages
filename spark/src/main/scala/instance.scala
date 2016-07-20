@@ -38,10 +38,6 @@ object Core extends App {
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
   // Classify the bin vectors into K different patterns
-  val K = 8
-  Analysis.learnPatterns(sc, K, binVectors)
-
-  // Illustrate centroids of those K different patterns
-  // as we classified
-
+  val K = 4
+  Analysis.learnPatterns(sc, K, binVectors, verbose)
 }

@@ -128,23 +128,49 @@ object Analysis {
    * @param {SparkContext} the underlying Spark context
    * @param {Int} number of patterns (clusters)
    * @param {Map[String, Array[Long]]} Distribution map in a form of bin vectors
+   * @param {Boolean} verbose mode?
    */
-  def learnPatterns(sc: SparkContext, k: Int, distMap: Map[String, Array[Long]]) {
+  def learnPatterns(sc: SparkContext, k: Int, distMap: Map[String, Array[Long]], verbose: Boolean) {
     val nIters = 10
 
-    // Create a Spark ML RDD of [Vector]
-    // from the distribution map [Map[String, Vector[Long]]]
+    println(Console.GREEN + "********************" + Console.RESET)
+    println(Console.GREEN + s"Classifying distribution patterns" + Console.RESET)
+    println(Console.GREEN + "********************" + Console.RESET)
+
+    // Map the distribution mapping of each language
+    // to an array of Spark vectors
     var rawVectors = distMap.keys.map { (lang) =>
       Vectors.dense(distMap(lang).map(_.toDouble))
     }
 
+    // Serialise [Array[Vector]] => [RDD[Vector]]
     var rddVectors = sc.parallelize(rawVectors.to[Seq])
 
     // Classify the input vectors with KMeans
     val clusterKMeans = KMeans.train(rddVectors, k, nIters)
 
+    if (verbose) {
+      println(Console.GREEN + "========= KMeans Centroids =======")
+      clusterKMeans.clusterCenters foreach { (centroid) =>
+        println("-----")
+        println(centroid)
+      }
+      println(Console.RESET)
+    }
+
     // Classify the input vectors with Gaussian-mixture model
     val modelGMM = new GaussianMixture().setK(k).run(rddVectors)
 
+    if (verbose){
+      println(Console.BLUE + "========== GMM Means =========")
+      modelGMM.gaussians foreach { (model) =>
+        println("-----")
+        println(model.mu)
+      }
+      println(Console.RESET)
+    }
+
+    // Illustrate the centroids of KMeans
+    // TAOTODO:
   }
 }
