@@ -31,9 +31,17 @@ object Core extends App {
     println(xy)
   }
 
+  // TAOTODO: Illustrate the distribution of the universe 
+
   // Group geospatial distributions data of each language
   // into [bin] so we have fixed-length numerical vectors.
-  val binDists = Analysis.geoDistToBins(sqlctx, dists_, universe)
+  val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
-  // TAOTODO: Pass over the distibution data for numerical analysis
+  // Classify the bin vectors into K different patterns
+  val K = 8
+  Analysis.learnPatterns(sc, K, binVectors)
+
+  // Illustrate centroids of those K different patterns
+  // as we classified
+
 }

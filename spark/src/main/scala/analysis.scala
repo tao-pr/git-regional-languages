@@ -3,6 +3,9 @@ package gitlang
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{ SQLContext, DataFrame }
 import scala.collection.mutable.{ Map, WrappedArray }
+import org.apache.spark.mllib.clustering.{ KMeans, KMeansModel }
+import org.apache.spark.mllib.clustering.{ GaussianMixture, GaussianMixtureModel }
+import org.apache.spark.mllib.linalg.{ Vectors, Matrices }
 
 object Analysis {
 
@@ -118,5 +121,30 @@ object Analysis {
     }
 
     map
+  }
+
+  /**
+   * Classify the distribution patterns into K different groups
+   * @param {SparkContext} the underlying Spark context
+   * @param {Int} number of patterns (clusters)
+   * @param {Map[String, Array[Long]]} Distribution map in a form of bin vectors
+   */
+  def learnPatterns(sc: SparkContext, k: Int, distMap: Map[String, Array[Long]]) {
+    val nIters = 10
+
+    // Create a Spark ML RDD of [Vector]
+    // from the distribution map [Map[String, Vector[Long]]]
+    var rawVectors = distMap.keys.map { (lang) =>
+      Vectors.dense(distMap(lang).map(_.toDouble))
+    }
+
+    var rddVectors = sc.parallelize(rawVectors.to[Seq])
+
+    // Classify the input vectors with KMeans
+    val clusterKMeans = KMeans.train(rddVectors, k, nIters)
+
+    // Classify the input vectors with Gaussian-mixture model
+    val modelGMM = new GaussianMixture().setK(k).run(rddVectors)
+
   }
 }
