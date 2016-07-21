@@ -126,21 +126,70 @@ object Analysis {
   /**
    * Revert the distribution bin vector
    * to a geospatial distribution map
+   * @param {SparkContext} the underlying Spark SQL instance
    * @param {Array[Long]} input bin vector we want to convert
    * @param {Map[SpatialLocation, Long]} global distribution mapping
    * @return {Map[SpatialLocation, Long]} distribution mapping of the input vector
    */
-  def binsToGeoDists(binVector: Array[Long], globalDist: Map[SpatialLocation, Long]): Map[SpatialLocation, Long] {
+  def binsToGeoDists(sqlctx: SQLContext, binVector: Array[Long], globalDist: Map[SpatialLocation, Long]): Map[SpatialLocation, Long] = {
+    import sqlctx.implicits._
+
     val output = Map.empty[SpatialLocation, Long]
 
     val globalVector = globalDist.keys
 
-    (binVector zip globalVector.to[Array]).foreach { (density, location) => 
-      if (density>0)
-        output(location) = density
+    (binVector zip globalVector.to[Array]).foreach { elem =>
+      elem match {
+        case (density, location) =>
+          if (density > 0)
+            output(location) = density
+      }
     }
 
     output
+  }
+
+
+  /**
+   * Serialise the distribution mapping of languages
+   * to a JSON string
+   */
+  def serialiseBinMapToJSON(sqlctx: SQLContext, dists: Map[String, Array[Long]]): String = {
+
+    val vectors = dists.map { elem =>
+      elem map {
+        case (language, binVector) => language :+ binVector.to[Seq]
+      }
+    }.to[Seq]
+
+    // Convert bin map vectors to a DataFrame
+    val schema = StructType(Seq[Seq[Float]])
+    val df = sqlctx.createDataFrame(vectors.map(
+      v => Row.fromSeq(v)), 
+      schema
+    )
+
+    // Serialise the DataFrame to JSON string
+    df.schema.json()
+  }
+
+  /**
+   * DEPRECATED: THIS WONT COMPILE.
+   * Serialise a mapping of language geospatial distribution
+   * to a JSON string.
+   */
+  def mapSpatialToJSON(sqlctx: SQLContext, map: Map[SpatialLocation, Long]): String = {
+
+    // Create a DataFrame from the map
+    val input = map.map { item =>
+      item match {
+        case (location, density) => Seq(location.lat, location.lng, density)
+      }
+    }
+    val df = sqlctx.createDataFrame(input.to[Seq])
+
+    // Serialise the data frame to a JSON string
+    df.schema.json()
   }
 
   /**

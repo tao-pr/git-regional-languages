@@ -26,9 +26,11 @@ object Core extends App {
   val universe = Analysis.accumGlobalDists(sqlctx, dists_)
 
   // Illustrate the universe distribution
-  println(Console.CYAN + s"Total geolocation spots : ${universe.keys.size}" + Console.RESET)
-  for (xy <- universe) {
-    println(xy)
+  if (verbose) {
+    println(Console.CYAN + s"Total geolocation spots : ${universe.keys.size}" + Console.RESET)
+    for (xy <- universe) {
+      println(xy)
+    }
   }
 
   // TAOTODO: Illustrate the distribution of the universe 
@@ -39,5 +41,9 @@ object Core extends App {
 
   // Classify the bin vectors into K different patterns
   val K = 4
-  Analysis.learnPatterns(sc, K, binVectors, verbose)
+  val (kmeans, gmm) = Analysis.learnPatterns(sc, K, binVectors, verbose)
+
+  // Classify language distribution into K groups as learned
+  // TAOTODO:
+
 }
