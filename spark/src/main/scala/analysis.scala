@@ -124,13 +124,34 @@ object Analysis {
   }
 
   /**
+   * Revert the distribution bin vector
+   * to a geospatial distribution map
+   * @param {Array[Long]} input bin vector we want to convert
+   * @param {Map[SpatialLocation, Long]} global distribution mapping
+   * @return {Map[SpatialLocation, Long]} distribution mapping of the input vector
+   */
+  def binsToGeoDists(binVector: Array[Long], globalDist: Map[SpatialLocation, Long]): Map[SpatialLocation, Long] {
+    val output = Map.empty[SpatialLocation, Long]
+
+    val globalVector = globalDist.keys
+
+    (binVector zip globalVector.to[Array]).foreach { (density, location) => 
+      if (density>0)
+        output(location) = density
+    }
+
+    output
+  }
+
+  /**
    * Classify the distribution patterns into K different groups
    * @param {SparkContext} the underlying Spark context
    * @param {Int} number of patterns (clusters)
    * @param {Map[String, Array[Long]]} Distribution map in a form of bin vectors
    * @param {Boolean} verbose mode?
+   * @return {Tuple[KMeansModel, GaussianMixtureModel]} output clusters
    */
-  def learnPatterns(sc: SparkContext, k: Int, distMap: Map[String, Array[Long]], verbose: Boolean) {
+  def learnPatterns(sc: SparkContext, k: Int, distMap: Map[String, Array[Long]], verbose: Boolean): (KMeansModel, GaussianMixtureModel) = {
     val nIters = 10
 
     println(Console.GREEN + "********************" + Console.RESET)
@@ -161,7 +182,7 @@ object Analysis {
     // Classify the input vectors with Gaussian-mixture model
     val modelGMM = new GaussianMixture().setK(k).run(rddVectors)
 
-    if (verbose){
+    if (verbose) {
       println(Console.BLUE + "========== GMM Means =========")
       modelGMM.gaussians foreach { (model) =>
         println("-----")
@@ -170,7 +191,6 @@ object Analysis {
       println(Console.RESET)
     }
 
-    // Illustrate the centroids of KMeans
-    // TAOTODO:
+    (clusterKMeans, modelGMM)
   }
 }
