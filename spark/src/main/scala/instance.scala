@@ -33,8 +33,6 @@ object Core extends App {
     }
   }
 
-  // TAOTODO: Illustrate the distribution of the universe 
-
   // Group geospatial distributions data of each language
   // into [bin] so we have fixed-length numerical vectors.
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
@@ -44,7 +42,14 @@ object Core extends App {
   val (kmeans, gmm) = Analysis.learnPatterns(sc, K, binVectors, verbose)
 
   // Classify language distribution into K groups as learned
-  // TAOTODO:
+  val (clusterKMeans, clusterGMM) = Analysis.examineClusters(kmeans, gmm, binVectors, verbose)
+
+  // Show the clustering results
+  clusterKMeans.foreach {
+    case (group, members) =>
+      println(Console.MAGENTA + s"[KMean Group: #${group}]" + Console.RESET)
+      members.foreach(println)
+  }
 
   // Save the serialised JSON string to a physical file
 

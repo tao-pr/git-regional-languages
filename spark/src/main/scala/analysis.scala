@@ -177,14 +177,13 @@ object Analysis {
   /**
    * Examine the likelihood of the cluster classified
    * by the given KMeans model or Gaussian Mixture Model
-   * @param {SparkContext}
    * @param {KMeansModel}
    * @param {GaussianMixtureModel}
    * @param {Map[String, Array[Long]]} Mapping from [Language] => [Bin vector]
    * @param {Boolean} Whether running verbosely
    * @return {Tuple2} of the clusters, in a format of [Map[Int, Array[String]]]
    */
-  def examineClusters(sc: SparkContext, kmeans: KMeansModel, gmm: GaussianMixtureModel, distBins: Map[String, Array[Long]], verbose: Boolean): (Map[Int, Array[String]], Map[Int, Array[String]]) = {
+  def examineClusters(kmeans: KMeansModel, gmm: GaussianMixtureModel, distBins: Map[String, Array[Long]], verbose: Boolean): (Map[Int, Array[String]], Map[Int, Array[String]]) = {
 
     // Cluster language distribution groups
     val clusters = distBins.map {
