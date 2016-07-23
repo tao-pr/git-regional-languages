@@ -180,10 +180,52 @@ object Analysis {
    * @param {SparkContext}
    * @param {KMeansModel}
    * @param {GaussianMixtureModel}
-   * @param {Map[SpatialLocation, Long]} Global universe distribution
-   * @param {DataFrame} Distribution data as read and filtered from the data source
+   * @param {Map[String, Array[Long]]} Mapping from [Language] => [Bin vector]
+   * @param {Boolean} Whether running verbosely
+   * @return {Tuple2} of the clusters, in a format of [Map[Int, Array[String]]]
    */
-  def examineClusters(sc: SparkContext, kmeans: KMeansModel, gmm: GaussianMixtureModel, globalDist: Map[SpatialLocation, Long], dists: DataFrame) {
-    // TAOTODO:
+  def examineClusters(sc: SparkContext, kmeans: KMeansModel, gmm: GaussianMixtureModel, distBins: Map[String, Array[Long]], verbose: Boolean): (Map[Int, Array[String]], Map[Int, Array[String]]) = {
+
+    // Cluster language distribution groups
+    val clusters = distBins.map {
+      case (lang, binVec) =>
+        if (verbose) {
+          Console.println(Console.GREEN + s"Examining cluster of : ${lang}" + Console.RESET)
+
+          // Convert the bin vector to the eligible type
+          // which Spark can utilise
+          val v = Vectors.dense(binVec.map(_.toDouble))
+
+          // Examine the cluster as computed with the given 
+          // KMeans model & GMM
+          val clusterKMeans = kmeans.predict(v)
+          val clusterGMM = gmm.predict(v)
+
+          (lang, clusterKMeans, clusterGMM)
+        }
+    }
+
+    // Create a cluster mapping 
+    // which maps [Cluster] => [Array of languages]
+    val emptyMap = Map.empty[Int, Array[String]].withDefaultValue(Array[String]())
+    val clusterByKMeans = clusters.foldLeft(emptyMap) {
+      (map, elem) =>
+        elem match {
+          case (lang: String, c: Int, _) =>
+            map(c) = lang +: map(c)
+            map
+        }
+    }
+
+    val clusterByGMM = clusters.foldLeft(emptyMap) {
+      (map, elem) =>
+        elem match {
+          case (lang: String, _, c: Int) =>
+            map(c) = lang +: map(c)
+            map
+        }
+    }
+
+    (clusterByKMeans, clusterByGMM)
   }
 }
