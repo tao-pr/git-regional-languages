@@ -38,17 +38,18 @@ object Core extends App {
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
   // Classify the bin vectors into K different patterns
-  val K = 4
+  val K = 10
   val (kmeans, gmm) = Analysis.learnPatterns(sc, K, binVectors, verbose)
 
   // Classify language distribution into K groups as learned
   val (clusterKMeans, clusterGMM) = Analysis.examineClusters(kmeans, gmm, binVectors, verbose)
 
   // Show the clustering results
+  println(Console.MAGENTA + "*******************************" + Console.RESET)
   clusterKMeans.foreach {
     case (group, members) =>
-      println(Console.MAGENTA + s"[KMean Group: #${group}]" + Console.RESET)
-      members.foreach(println)
+      println(Console.MAGENTA + s"[KMeans Group: #${group}]" + Console.RESET)
+      println(members.mkString(" , "))
   }
 
   // Save the serialised JSON string to a physical file

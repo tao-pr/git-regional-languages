@@ -120,7 +120,69 @@ object Analysis {
       }
     }
 
-    map
+    // Neutralise the bin vectors
+    // by keep the bin values which represent 
+    // 75% of the total energy, otherwise set zero.
+    val THRESH_E = 0.75
+    val map_ = map.map {
+      case (lang, binvec) =>
+
+        // Compute the total energy of the vector
+        val totalEsqr = binvec.foldLeft(0D) { (a, b) => a + scala.math.pow(b, 2) }
+        val totalE = scala.math.sqrt(totalEsqr)
+        val threshE = totalE * THRESH_E
+
+        // Map the bin vector with its index
+        val indexedBin = binvec.zipWithIndex
+
+        // Sort the indexed bins by magnitude
+        val sortedBin = indexedBin.sortWith {
+          case (a, b) =>
+            val (abin, aindex) = a
+            val (bbin, bindex) = b
+            abin > bbin
+        }
+
+        // Take the biggest bin values until
+        // the aggregated energy reaches the threshold of 75%
+        // TAOTODO:
+        val initBinVector = Array.fill[Long](binLength)(0)
+        val resultBinVec = thresholdBinVector(
+          initBinVector,
+          sortedBin,
+          0,
+          threshE
+        )
+
+        (lang -> resultBinVec)
+    }
+
+    map_
+  }
+
+
+  /**
+   * Sample the given bin vector (Array)
+   * by taking only top bins with larger amount of magnitude.
+   * The resultant bin vector will exhibit up to
+   * the specified threshold of energy.
+   */
+  private def thresholdBinVector(binVec: Array[Long], sortedBin: Array[(Long, Int)], index: Int, threshold: Double): Array[Long] = {
+
+    if (index >= sortedBin.length)
+      return binVec
+
+    val totalEsqr = binVec.foldLeft(0D) { (a, b) => a + scala.math.pow(b, 2) }
+    val totalE = scala.math.sqrt(totalEsqr)
+
+    if (totalE >= threshold)
+      return binVec
+
+    // Take the next element from the source bin vector
+    val (b, i) = sortedBin.apply(index)
+    binVec(i) = b
+
+    thresholdBinVector(binVec, sortedBin, index + 1, threshold)
   }
 
   /**
