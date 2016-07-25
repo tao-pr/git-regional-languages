@@ -37,6 +37,9 @@ object Core extends App {
   // into [bin] so we have fixed-length numerical vectors.
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
+  // Visualise the resultant bin vectors
+  Plot.plotBinVectors(binVectors)
+
   // Classify the bin vectors into K different patterns
   val K = 6
   val (kmeans, gmm) = Analysis.learnPatterns(sc, K, binVectors, verbose)
