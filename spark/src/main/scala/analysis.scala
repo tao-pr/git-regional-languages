@@ -122,8 +122,8 @@ object Analysis {
 
     // Neutralise the bin vectors
     // by keep the bin values which represent 
-    // 75% of the total energy, otherwise set zero.
-    val THRESH_E = 0.75
+    // 66% of the total energy, otherwise set zero.
+    val THRESH_E = 0.66
     val map_ = map.map {
       case (lang, binvec) =>
 
@@ -144,8 +144,7 @@ object Analysis {
         }
 
         // Take the biggest bin values until
-        // the aggregated energy reaches the threshold of 75%
-        // TAOTODO:
+        // the aggregated energy reaches the specified threshold 
         val initBinVector = Array.fill[Long](binLength)(0)
         val resultBinVec = thresholdBinVector(
           initBinVector,
@@ -159,7 +158,6 @@ object Analysis {
 
     map_
   }
-
 
   /**
    * Sample the given bin vector (Array)
@@ -180,7 +178,7 @@ object Analysis {
 
     // Take the next element from the source bin vector
     val (b, i) = sortedBin.apply(index)
-    binVec(i) = b
+    binVec(i) = scala.math.round(100 * scala.math.sqrt(((b * b) / totalEsqr).toDouble))
 
     thresholdBinVector(binVec, sortedBin, index + 1, threshold)
   }

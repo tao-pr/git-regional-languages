@@ -38,7 +38,7 @@ object Core extends App {
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
   // Classify the bin vectors into K different patterns
-  val K = 10
+  val K = 6
   val (kmeans, gmm) = Analysis.learnPatterns(sc, K, binVectors, verbose)
 
   // Classify language distribution into K groups as learned
