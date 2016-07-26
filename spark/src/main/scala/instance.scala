@@ -35,7 +35,7 @@ object Core extends App {
 
   // Group geospatial distributions data of each language
   // into [bin] so we have fixed-length numerical vectors.
-  val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
+  val binVectors = Transform.geoDistToBins(sqlctx, dists_, universe)
 
   // Visualise the resultant bin vectors
   //// Plot.plotBinVectors(binVectors)
