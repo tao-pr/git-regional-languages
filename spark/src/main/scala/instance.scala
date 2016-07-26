@@ -38,7 +38,7 @@ object Core extends App {
   val binVectors = Analysis.geoDistToBins(sqlctx, dists_, universe)
 
   // Visualise the resultant bin vectors
-  Plot.plotBinVectors(binVectors)
+  //// Plot.plotBinVectors(binVectors)
 
   // Classify the bin vectors into K different patterns
   val K = 6
