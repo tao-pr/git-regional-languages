@@ -54,9 +54,16 @@ function updateGeoRegions(locations){
 	var geoUpdate = GeoDB.update(geoDb);
 
 	function validLocation(location){
-		if (!!~invalid_locations.indexOf(location)){
-			console.log(`Skip - ${location}`.yellow);
-			return false;
+		if (
+			!location ||
+			location.length < 3 ||
+			location.length > 10 ||
+			!!~invalid_locations.indexOf(location) ||
+			!!~location.indexOf('@') ||
+			!!location.toLowerCase().indexOf('where')){
+
+				console.log(`Skip - ${location}`.yellow);
+				return false;
 		}
 		else return true;
 	}
@@ -239,6 +246,8 @@ function prep(){
 			console.log('Analysing geolocations...'.green)
 			return MapReduce.allRegions(datasource)
 				.then(function(regions){
+
+					// TAOTODO: Skip the locations which are already resolved
 
 					// Strip only unique and contentful locations
 					var locations = _.uniq(_.pluck(regions,'_id'));
