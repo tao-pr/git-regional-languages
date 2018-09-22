@@ -24,10 +24,10 @@ in some particular regions. Let's find out.
 
 Prerequisites:
 
+- [x] Python3.7+
 - [x] Github API access token
 - [x] GoogleMap API key
 - [x] MongoDB
-- [x] Python 3.4+
 - [x] Node.js 4.x+
 - [x] Scala with SBT build tool
 - [x] Apache Spark (local instance)
