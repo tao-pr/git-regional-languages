@@ -24,7 +24,13 @@ MapReduce.langDistributionByLocation = function(dbsrc){
 		var record = this;
 		Object.keys(this.langs).forEach(function(lang){
 			// {key = language, value = [location,code amount]}
-			emit(lang,[record.owner.location,record.langs[lang]])
+			var sumloc = 0;
+
+			for ([l,loc] of Object.entries(record.langs))
+				sumloc += loc;
+
+			if (record.owner.repos > 1 && record.owner.followers >= 10 && sumloc >= 200)
+				emit(lang,[record.owner.location,record.langs[lang]])
 		})
 	}
 	var reduce = function(key,values){

@@ -84,6 +84,8 @@ store them in the MongoDB.
 | gitlang/repos | Github repositories data with the location of owners |
 | gitlang/geo | Mapping between geolocation and territory |
 
+**2nd NOTE:** This project is based on [Github API v3](https://developer.github.com/v3/?) even though the next generation using [GraphQL API](https://developer.github.com/v4/) has been rolled out. 
+
 
 ---
 
