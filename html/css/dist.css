@@ -20,6 +20,26 @@ html,body{
 	height: 150px;
 }
 
+#float-panel
+{
+	z-index: 10;
+	position: fixed;
+	left: 250;
+	top: 15;
+	font-size: 20pt;
+	margin-left: 25px;
+	padding: 10px 10px;
+	background-color: rgba(0,0,0,.77);
+	border: black;
+	color: orange;
+}
+
+.loc
+{
+	font-size: 17pt;
+	color: yellow;
+}
+
 #panel-lang{
 	z-index: 10;
 	position: fixed;
@@ -31,6 +51,7 @@ html,body{
 }
 
 #panel-lang select{
+	height: 100%;
 	font-size:12pt;
 	background-color: rgba(0,0,0,0);
 	border:none;
