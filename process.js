@@ -227,6 +227,7 @@ function prep(){
 	console.log('******************'.green);
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	MapReduce.langDistributionByLocation(datasource)
+		// TAOTODO: add correlation between languages that co-exist in a repo
 		.then(function(dist){
 
 			// Sort density and remove null location
@@ -247,13 +248,11 @@ function prep(){
 			return MapReduce.allRegions(datasource)
 				.then(function(regions){
 
-					// TAOTODO: Skip the locations which are already resolved
-
 					// Strip only unique and contentful locations
 					var locations = _.uniq(_.pluck(regions,'_id'));
 					    locations = _.reject(locations,_.isNull);
 
-					return locations;			
+					return locations;
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})

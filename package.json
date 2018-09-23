@@ -27,8 +27,8 @@
   "homepage": "https://github.com/starcolon/git-regional-languages",
   "dependencies": {
     "bluebird": "^3.3.4",
-    "mongodb": "^2.0.55",
-    "mongoskin": "^2.0.3",
+    "mongodb": "^2.2.36",
+    "mongoskin": "^2.1.0",
     "request": "^2.69.0",
     "underscore": "^1.8.3"
   }
