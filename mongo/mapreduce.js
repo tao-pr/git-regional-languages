@@ -17,6 +17,55 @@ MapReduce.db = function(serverAddr,dbName,collection){
 }
 
 /**
+ * Generate the correlation of pairs of languages
+ */
+MapReduce.langCorrelation = function(dbsrc){
+	var map = function(){
+		var record = this;
+
+		if (Object.keys(this.langs).length > 1)
+			Object.keys(this.langs).forEach(function(baselang){
+				Object.keys(record.langs).forEach(function(lang){
+					var dict = {};
+					// TAOTODO: Find the best way to weight
+					dict[lang] = record.langs[lang]/record.langs[baselang];
+					emit(baselang, dict)
+				})
+			})
+	}
+	var reduce = function(key,values){
+		var kv = {};
+		values.forEach(function(dict){
+			Object.keys(dict).forEach(function(k){
+				if (!(k in kv)){
+					kv[k] = [];
+				}
+				kv[k].push(dict[k]);
+			})
+		})
+		return kv;
+	}
+
+	return new Promise(function(done,reject){
+		dbsrc.mapReduce(
+			map.toString(),
+			reduce.toString(),
+			{out: "langCorrelation"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
+}
+
+/**
  * Get the distribution of language by regions
  */
 MapReduce.langDistributionByLocation = function(dbsrc){

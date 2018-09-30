@@ -107,6 +107,22 @@ function updateGeoRegions(locations){
 		.then((locations) => Promise.map(locations,createGeoUpdater))
 }
 
+function generateLanguageCorrelation(){
+	console.log('Generating language correlation...'.green)
+
+	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
+	return MapReduce.langCorrelation(datasource)
+		.then((corr) => {
+			console.log(corr);
+			// TAOTODO:
+			
+		})
+}
+
+function generateCorrelationJSON(){
+	// TAOTODO:
+}
+
 /**
  * Collects language distribution over regions
  * from the MongoDB and produces a density map
@@ -256,10 +272,13 @@ function prep(){
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
-		.then(generateGeoLanguageDensity)
-		.then(generateJson('spark/src/main/resources/dist.json'))
-		.then(generateJs('html/js/dist.js'))
-		.then(() => portGoogleAPIKey('html/js/gapi.js'))
+		// TAODEBUG:
+		.then(generateLanguageCorrelation)
+		.then(generateCorrelationJSON('html/js/correlation.js'))
+		// .then(generateGeoLanguageDensity)
+		// .then(generateJson('spark/src/main/resources/dist.json'))
+		// .then(generateJs('html/js/dist.js'))
+		// .then(() => portGoogleAPIKey('html/js/gapi.js'))
 		.then(() => process.exit(0))
 }
 

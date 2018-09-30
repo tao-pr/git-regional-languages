@@ -25,7 +25,7 @@ in some particular regions. Let's find out.
 Prerequisites:
 
 - [x] Python3.7+
-- [x] MongoDB 4.2+
+- [x] MongoDB 3.0+
 - [x] Node.js 4.x+
 
 - [x] Github API access token
