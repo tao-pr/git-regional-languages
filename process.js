@@ -124,20 +124,23 @@ function generateLanguageCorrelation(){
 		return Math.sqrt(d/vs.length);
 	})
 
-	var meanComparer = (a,b) => b.mean - mean.a;
+	var baseOccurrenceComparer = (a,b) => b.numRepos - a.numRepos;
+	var meanComparer = (a,b) => b.mean - b.mean;
 
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	return MapReduce.langCorrelation(datasource)
 		.then((corr) => {
-			var corr_ = {};
+			var list = [];
+
 			corr.forEach((langBase) => {
 				var langs = new PriorityQueue({comparater: meanComparer});
 				if (Object.keys(langBase.value).length > 0){
-					var sumOccurrence = 0;
+					var baseOccurrence = 0;
 					Object.keys(langBase.value).forEach((lang) => {
 						if (lang == langBase._id){
-							sumOccurrence = langBase.value[lang]
-							langs.queue({lang: lang, occ: langBase.value[lang]})  // TAODEBUG:
+							if (langBase.value[lang])
+								baseOccurrence = langBase.value[lang]
+							langs.queue({lang: lang, occ: langBase.value[lang]})
 						}
 						else {
 							langs.queue({lang: lang, occ: langBase.value[lang]}) 
@@ -147,16 +150,27 @@ function generateLanguageCorrelation(){
 					var top = [];
 					while (top.length<3 && langs.length>0){
 						var t = langs.dequeue();
-						t.occ /= sumOccurrence;
+						t.occ /= baseOccurrence;
 						if (t.occ)
 							top.push(t);
 					}
-					corr_[langBase._id] = top;
+					list.push({
+						lang: langBase._id, 
+						numRepos: baseOccurrence,
+						top:top
+					});
 				}
 
 				console.log(`Processed ... ${langBase._id}, ... ${Object.keys(langBase.value).length} entries`)
 			})
-			console.log(corr_)
+
+			// Take only top languages
+			list.sort(baseOccurrenceComparer);
+			list = list.slice(0,20);
+			console.log(list.map((l) => {
+				l.top = JSON.stringify(l.top)
+				return l;
+			}))
 		})
 }
 
