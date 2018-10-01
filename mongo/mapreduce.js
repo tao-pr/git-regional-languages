@@ -26,9 +26,12 @@ MapReduce.langCorrelation = function(dbsrc){
 		if (Object.keys(this.langs).length > 1)
 			Object.keys(this.langs).forEach(function(baselang){
 				Object.keys(record.langs).forEach(function(lang){
-					var dict = {};
-					dict[lang] = 1;
-					emit(baselang, dict)
+					if (lang != baselang){
+						var dict = {};
+						dict[lang] = 1;
+						dict[baselang] = 1;
+						emit(baselang, dict)
+					}
 				})
 			})
 	}
@@ -37,9 +40,9 @@ MapReduce.langCorrelation = function(dbsrc){
 		values.forEach(function(dict){
 			Object.keys(dict).forEach(function(k){
 				if (!(k in kv)){
-					kv[k] = [];
+					kv[k] = 0;
 				}
-				kv[k] = kv[k] += dict[k];
+				kv[k] += dict[k];
 			})
 		})
 		return kv;

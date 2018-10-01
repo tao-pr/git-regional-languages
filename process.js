@@ -131,13 +131,15 @@ function generateLanguageCorrelation(){
 		.then((corr) => {
 			var corr_ = {};
 			corr.forEach((langBase) => {
-				
 				var langs = new PriorityQueue({comparater: meanComparer});
 				if (Object.keys(langBase.value).length > 0){
 					var sumOccurrence = 0;
 					Object.keys(langBase.value).forEach((lang) => {
-						if (lang != langBase._id){
-							sumOccurrence += langBase.value[lang]
+						if (lang == langBase._id){
+							sumOccurrence = langBase.value[lang]
+							langs.queue({lang: lang, occ: langBase.value[lang]})  // TAODEBUG:
+						}
+						else {
 							langs.queue({lang: lang, occ: langBase.value[lang]}) 
 						}
 					})
@@ -146,7 +148,8 @@ function generateLanguageCorrelation(){
 					while (top.length<3 && langs.length>0){
 						var t = langs.dequeue();
 						t.occ /= sumOccurrence;
-						top.push(t);
+						if (t.occ)
+							top.push(t);
 					}
 					corr_[langBase._id] = top;
 				}
