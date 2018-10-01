@@ -27,8 +27,7 @@ MapReduce.langCorrelation = function(dbsrc){
 			Object.keys(this.langs).forEach(function(baselang){
 				Object.keys(record.langs).forEach(function(lang){
 					var dict = {};
-					// TAOTODO: Find the best way to weight
-					dict[lang] = record.langs[lang]/record.langs[baselang];
+					dict[lang] = [record.langs[lang]/record.langs[baselang]];
 					emit(baselang, dict)
 				})
 			})
@@ -40,7 +39,7 @@ MapReduce.langCorrelation = function(dbsrc){
 				if (!(k in kv)){
 					kv[k] = [];
 				}
-				kv[k].push(dict[k]);
+				kv[k] = kv[k].concat(dict[k]);
 			})
 		})
 		return kv;

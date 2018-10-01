@@ -16,6 +16,7 @@ var fs = require('fs');
 var MapReduce = require('./mongo/mapreduce.js');
 var GeoDB     = require('./mongo/geodb.js');
 var Gmap      = require('./mapapi/gmap.js');
+var PriorityQueue = require('js-priority-queue')
 
 const MONGO_SVR = 'mongodb://localhost';
 const MONGO_DB  = 'gitlang';
@@ -110,12 +111,47 @@ function updateGeoRegions(locations){
 function generateLanguageCorrelation(){
 	console.log('Generating language correlation...'.green)
 
+	var sum = ((vs) => {
+		var d = 0;
+		vs.forEach((v) => d += v)
+		return d;
+	})
+
+	var std = ((vs, mean) => {
+		if (vs.length == 0) return 0;
+		var d = 0;
+		vs.forEach((v) => d += Math.pow(mean-v,2))
+		return Math.sqrt(d/vs.length);
+	})
+
+	var meanComparer = (a,b) => b.mean - mean.a;
+
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	return MapReduce.langCorrelation(datasource)
 		.then((corr) => {
-			console.log(corr);
-			// TAOTODO:
-			
+			var corr_ = {};
+			corr.forEach((langBase) => {
+				
+				var langs = new PriorityQueue({comparater: meanComparer});
+				if (Object.keys(langBase.value).length > 0){
+					Object.keys(langBase.value).forEach((lang) => {
+						if (lang != langBase._id){
+							var mean = sum(langBase.value[lang])
+							var sd = std(langBase.value[lang], mean)
+							langs.queue({lang: lang, mean: mean, std: sd}) 
+						}
+					})
+					// Select top 3 languages with highest contribution ratios
+					var top = [];
+					while (top.length<3 && langs.length>0){
+						top.push(langs.dequeue());
+					}
+					corr_[langBase._id] = top;
+				}
+
+				console.log(`Processed ... ${langBase._id}, ... ${Object.keys(langBase.value).length} entries`)
+			})
+			console.log(corr_)
 		})
 }
 
