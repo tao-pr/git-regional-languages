@@ -134,17 +134,19 @@ function generateLanguageCorrelation(){
 				
 				var langs = new PriorityQueue({comparater: meanComparer});
 				if (Object.keys(langBase.value).length > 0){
+					var sumOccurrence = 0;
 					Object.keys(langBase.value).forEach((lang) => {
 						if (lang != langBase._id){
-							var mean = sum(langBase.value[lang])
-							var sd = std(langBase.value[lang], mean)
-							langs.queue({lang: lang, mean: mean, std: sd}) 
+							sumOccurrence += langBase.value[lang]
+							langs.queue({lang: lang, occ: langBase.value[lang]}) 
 						}
 					})
 					// Select top 3 languages with highest contribution ratios
 					var top = [];
 					while (top.length<3 && langs.length>0){
-						top.push(langs.dequeue());
+						var t = langs.dequeue();
+						t.occ /= sumOccurrence;
+						top.push(t);
 					}
 					corr_[langBase._id] = top;
 				}

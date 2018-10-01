@@ -27,7 +27,7 @@ MapReduce.langCorrelation = function(dbsrc){
 			Object.keys(this.langs).forEach(function(baselang){
 				Object.keys(record.langs).forEach(function(lang){
 					var dict = {};
-					dict[lang] = [record.langs[lang]/record.langs[baselang]];
+					dict[lang] = 1;
 					emit(baselang, dict)
 				})
 			})
@@ -39,7 +39,7 @@ MapReduce.langCorrelation = function(dbsrc){
 				if (!(k in kv)){
 					kv[k] = [];
 				}
-				kv[k] = kv[k].concat(dict[k]);
+				kv[k] = kv[k] += dict[k];
 			})
 		})
 		return kv;
