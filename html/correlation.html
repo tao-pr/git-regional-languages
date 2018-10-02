@@ -14,7 +14,8 @@
       }
 
       function lazyRound(a){
-        return (a * 100).toString().split('.')[0]*0.01
+        var s = ((a * 100).toString().split('.')[0]*0.01).toString()
+        return s.slice(0,s.indexOf('.')+3)
       }
 
       function exhibit(correlation){
@@ -27,7 +28,12 @@
           lang.top.forEach((top) => {
             if (top.occ > 1e-4) {
               top.occ = lazyRound(top.occ * 100) + " %"
-              $(sheet).append(`<p><dt>${top.lang}</dt><dd>${top.occ}</dd></p>`)  
+              var p = $('<p class="flex">');
+              var dt = $(`<dt>with ${top.lang}</dt>`);
+              var dd = $(`<dd>${top.occ}</dd>`);
+              p.append(dt);
+              p.append(dd);
+              $(sheet).append(p);
             }
           })
           $('body').first().append(sheet)

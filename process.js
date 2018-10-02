@@ -167,7 +167,7 @@ function generateLanguageCorrelationToJSON(outputPath){
 
 				// Take only top languages (by number of repos)
 				list.sort(baseOccurrenceComparer);
-				list = list.slice(0,25);
+				list = list.slice(0,35);
 				console.log(list.map((l) => {
 					l.top = JSON.stringify(l.top)
 					return l;

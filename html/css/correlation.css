@@ -35,19 +35,22 @@ p {
   width: 100%;
 }
 
+p.flex {
+  display: flex;
+}
+
 dt{
-  display: inline;
+  flex: 1;
   padding: 4px 6px;
-  border-color: #333333;
-  background-color: #557565;
+  border: 1px solid #257555;
+  background-color: #95C5A5;
   color: #005020;
   text-shadow: rgba(0,220,200,0.4)
   width: 64%;
 }
 
 dd{
-  display: inline;
-  margin-left: 15px;
-  width: 30%;
+  flex: 1;
+  width: 20%;
   color: #00B035;
 }
