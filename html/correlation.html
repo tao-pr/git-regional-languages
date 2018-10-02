@@ -8,14 +8,29 @@
       var correlation = getDist();
       console.log(correlation); // TAODEBUG:
       function newSheet(lang){
-        return '<div>' + lang.lang + '</div>' // TAOTODO:
+        var div = $('<div>')
+        div.append(`<h1>${lang.lang}</h1>`)
+        return div;
+      }
+
+      function lazyRound(a){
+        return (a * 100).toString().split('.')[0]*0.01
       }
 
       function exhibit(correlation){
         while (correlation.length > 0){
           var lang = correlation.shift();
           console.log(`Rendering ... ${lang.lang}`);
-          $('body').first().append(newSheet(lang));
+          var sheet = newSheet(lang);
+          $(sheet).append(`<p>${lang.numRepos} repositories</p>`)
+          lang.top = JSON.parse(lang.top)
+          lang.top.forEach((top) => {
+            if (top.occ > 1e-4) {
+              top.occ = lazyRound(top.occ * 100) + " %"
+              $(sheet).append(`<p><dt>${top.lang}</dt><dd>${top.occ}</dd></p>`)  
+            }
+          })
+          $('body').first().append(sheet)
         }
   
       }
