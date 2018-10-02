@@ -16,6 +16,7 @@ var fs = require('fs');
 var MapReduce = require('./mongo/mapreduce.js');
 var GeoDB     = require('./mongo/geodb.js');
 var Gmap      = require('./mapapi/gmap.js');
+var PriorityQueue = require('js-priority-queue')
 
 const MONGO_SVR = 'mongodb://localhost';
 const MONGO_DB  = 'gitlang';
@@ -54,9 +55,16 @@ function updateGeoRegions(locations){
 	var geoUpdate = GeoDB.update(geoDb);
 
 	function validLocation(location){
-		if (!!~invalid_locations.indexOf(location)){
-			console.log(`Skip - ${location}`.yellow);
-			return false;
+		if (
+			!location ||
+			location.length < 3 ||
+			location.length > 10 ||
+			!!~invalid_locations.indexOf(location) ||
+			!!~location.indexOf('@') ||
+			!!location.toLowerCase().indexOf('where')){
+
+				console.log(`Skip - ${location}`.yellow);
+				return false;
 		}
 		else return true;
 	}
@@ -99,6 +107,78 @@ function updateGeoRegions(locations){
 		)
 		.then((locations) => Promise.map(locations,createGeoUpdater))
 }
+
+function generateLanguageCorrelationToJSON(outputPath){
+	return function(){
+		console.log('Generating language correlation...'.green)
+
+		var sum = ((vs) => {
+			var d = 0;
+			vs.forEach((v) => d += v)
+			return d;
+		})
+
+		var std = ((vs, mean) => {
+			if (vs.length == 0) return 0;
+			var d = 0;
+			vs.forEach((v) => d += Math.pow(mean-v,2))
+			return Math.sqrt(d/vs.length);
+		})
+
+		var baseOccurrenceComparer = (a,b) => b.numRepos - a.numRepos;
+		var meanComparer = (a,b) => b.mean - b.mean;
+
+		var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
+		return MapReduce.langCorrelation(datasource)
+			.then((corr) => {
+				var list = [];
+
+				corr.forEach((langBase) => {
+					var langs = new PriorityQueue({comparater: meanComparer});
+					if (Object.keys(langBase.value).length > 0){
+						var baseOccurrence = 0;
+						Object.keys(langBase.value).forEach((lang) => {
+							if (lang == langBase._id){
+								if (langBase.value[lang])
+									baseOccurrence = langBase.value[lang]
+								langs.queue({lang: lang, occ: langBase.value[lang]})
+							}
+							else {
+								langs.queue({lang: lang, occ: langBase.value[lang]}) 
+							}
+						})
+						// Select top 3 languages with highest contribution ratios
+						var top = [];
+						while (top.length<3 && langs.length>0){
+							var t = langs.dequeue();
+							t.occ /= baseOccurrence;
+							if (t.occ)
+								top.push(t);
+						}
+						list.push({
+							lang: langBase._id, 
+							numRepos: baseOccurrence,
+							top:top
+						});
+					}
+
+					console.log(`Processed ... ${langBase._id}, ... ${Object.keys(langBase.value).length} entries`)
+				})
+
+				// Take only top languages (by number of repos)
+				list.sort(baseOccurrenceComparer);
+				list = list.slice(0,25);
+				console.log(list.map((l) => {
+					l.top = JSON.stringify(l.top)
+					return l;
+				}))
+				
+				return list
+			})
+			.then(generateJs(outputPath))
+	}
+}
+
 
 /**
  * Collects language distribution over regions
@@ -220,6 +300,7 @@ function prep(){
 	console.log('******************'.green);
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	MapReduce.langDistributionByLocation(datasource)
+		// TAOTODO: add correlation between languages that co-exist in a repo
 		.then(function(dist){
 
 			// Sort density and remove null location
@@ -244,14 +325,16 @@ function prep(){
 					var locations = _.uniq(_.pluck(regions,'_id'));
 					    locations = _.reject(locations,_.isNull);
 
-					return locations;			
+					return locations;
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
-		.then(generateGeoLanguageDensity)
-		.then(generateJson('spark/src/main/resources/dist.json'))
-		.then(generateJs('html/js/dist.js'))
-		.then(() => portGoogleAPIKey('html/js/gapi.js'))
+		// TAODEBUG:
+		.then(generateLanguageCorrelationToJSON('html/js/correlation.js'))
+		// .then(generateGeoLanguageDensity)
+		// .then(generateJson('spark/src/main/resources/dist.json'))
+		// .then(generateJs('html/js/dist.js'))
+		// .then(() => portGoogleAPIKey('html/js/gapi.js'))
 		.then(() => process.exit(0))
 }
 

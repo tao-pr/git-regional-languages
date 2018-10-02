@@ -17,15 +17,77 @@ MapReduce.db = function(serverAddr,dbName,collection){
 }
 
 /**
+ * Generate the correlation of pairs of languages
+ */
+MapReduce.langCorrelation = function(dbsrc){
+	var map = function(){
+		var record = this;
+
+		if (Object.keys(this.langs).length > 1)
+			Object.keys(this.langs).forEach(function(baselang){
+				Object.keys(record.langs).forEach(function(lang){
+					if (lang != baselang){
+						var dict = {};
+						dict[lang] = 1;
+						dict[baselang] = 1;
+						emit(baselang, dict)
+					}
+				})
+			})
+	}
+	var reduce = function(key,values){
+		var kv = {};
+		values.forEach(function(dict){
+			Object.keys(dict).forEach(function(k){
+				if (!(k in kv)){
+					kv[k] = 0;
+				}
+				kv[k] += dict[k];
+			})
+		})
+		return kv;
+	}
+
+	return new Promise(function(done,reject){
+		dbsrc.mapReduce(
+			map.toString(),
+			reduce.toString(),
+			{out: "langCorrelation"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
+}
+
+/**
  * Get the distribution of language by regions
  */
 MapReduce.langDistributionByLocation = function(dbsrc){
 	var map = function(){
 		var record = this;
+
+		// Skip the repo if the total LoC is too small
+		var sumloc = 0;
 		Object.keys(this.langs).forEach(function(lang){
-			// {key = language, value = [location,code amount]}
-			emit(lang,[record.owner.location,record.langs[lang]])
+			var loc = record.langs[lang];
+			sumloc += loc;
 		})
+
+		if (sumloc >= 200){
+			Object.keys(this.langs).forEach(function(lang){
+				// {key = language, value = [location,code amount]}
+				if (record.owner.repos > 1 && record.owner.followers >= 10)
+					emit(lang,[record.owner.location,record.langs[lang]])
+			})
+		}
 	}
 	var reduce = function(key,values){
 		var lang = key;
@@ -43,7 +105,8 @@ MapReduce.langDistributionByLocation = function(dbsrc){
 
 	return new Promise(function(done,reject){
 		dbsrc.mapReduce(
-			map,reduce,
+			map.toString(),
+			reduce.toString(),
 			{out: "distLangByRegion"},
 			function(err,destCollection){
 				if (err){
@@ -72,7 +135,8 @@ MapReduce.allRegions = function(dbsrc){
 
 	return new Promise(function(done,reject){
 		dbsrc.mapReduce(
-			map, reduce,
+			map.toString(), 
+			reduce.toString(),
 			{out: "regions"},
 			function(err,destCollection){
 				if (err){

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pip3 install termcolor
-pip3 install argparse
-pip3 install pymongo
-pip3 install pprint
+pip3.7 install requests
+pip3.7 install termcolor
+pip3.7 install argparse
+pip3.7 install pymongo
+pip3.7 install pprint

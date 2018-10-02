@@ -3,7 +3,6 @@
 		<title>Github Language Distribution On Earth</title>
 		<link rel="stylesheet" type="text/css" href="./css/dist.css">
 		<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-		<!--<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>-->
 		<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
 		<script type="text/javascript" src="./js/dist.js"></script>
 		<script type="text/javascript" src="./js/gapi.js"></script>
@@ -29,10 +28,6 @@
 					featureType: 'landscape',
 					stylers: [{color:'#000000'}]
 				}
-				/*{
-					featureType:'all',
-					stylers:[{hue:'#3055CC'}]
-				}*/
 			]
 
 			function initMap() {
@@ -47,11 +42,23 @@
 			function renderLang(lang){
 				console.log('Rendering... ' + lang);
 
+				var dist = getDistByLang(lang);
 				var heatmap = new google.maps.visualization.HeatmapLayer({
-					data: getDistByLang(lang),
+					data: dist,
 					map: map,
 					radius: 30
 				});
+
+				var totLoc = 0;
+				dist.forEach((d) => {
+					totLoc += d.weight;
+				})
+				
+				if (totLoc > 10000) totLoc = Math.floor(totLoc/1000) + "K LoC";
+				else totLoc += " LoC";
+
+				document.getElementById("float-panel").innerHTML = lang + 
+					"<br/><span class='loc'>" + totLoc + "</span>";
 
 				if (currentHeatMap != null)
 					currentHeatMap.setMap(null);
@@ -87,7 +94,16 @@
 			}
 
 			function getAllLangs(){
-				return getDist().map((n) => n.lang._id);
+				return getDist()
+					.filter((n) => {
+						var totLoc = 0;
+						Object.keys(n.lang.value).forEach((ln) => {
+							if (ln != "null")
+								totLoc += n.lang.value[ln]
+						})
+						return totLoc > 0
+					})
+					.map((n) => n.lang._id)
 			}
 
 			function getDistByLang(lang){
@@ -124,6 +140,9 @@
 		</script>
 	</head>
 	<body>
+		<div id="float-panel">
+			Choose a language
+		</div>
 		<div id="panel-lang">
 			<select size="32" onchange="renderLang(this.value)"></select>
 		</div>

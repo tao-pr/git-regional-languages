@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	# Sequentially download the data to MongoDB
 	mongo = init_mongo('mongodb://localhost','gitlang','repos')
 	repo_start_id = get_recent_repo_id(mongo)
-	num_batch = 16
+	num_batch = 3000 # TAODEBUG: limit
 
 	print(colored("Start downloading from #{0}".format(repo_start_id),"cyan"))
 

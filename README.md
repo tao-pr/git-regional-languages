@@ -24,11 +24,12 @@ in some particular regions. Let's find out.
 
 Prerequisites:
 
+- [x] Python3.7+
+- [x] MongoDB 3.0+
+- [x] Node.js 4.x+
+
 - [x] Github API access token
 - [x] GoogleMap API key
-- [x] MongoDB
-- [x] Python 3.4+
-- [x] Node.js 4.x+
 - [x] Scala with SBT build tool
 - [x] Apache Spark (local instance)
 
@@ -83,6 +84,8 @@ store them in the MongoDB.
 |------------------|----------------|
 | gitlang/repos | Github repositories data with the location of owners |
 | gitlang/geo | Mapping between geolocation and territory |
+
+**2nd NOTE:** This project is based on [Github API v3](https://developer.github.com/v3/?) even though the next generation using [GraphQL API](https://developer.github.com/v4/) has been rolled out. 
 
 
 ---
