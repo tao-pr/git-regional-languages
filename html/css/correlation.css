@@ -1,0 +1,22 @@
+html,body{
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0
+}
+
+body {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+body div {
+  width: 30%;
+  max-width: 30%;
+  height: 350px;
+  margin: 25px 25px;
+  flex: 1 1 280px;
+  box-shadow: 1px 1px 3px rgba(40,40,40,0.4);
+  border: 1px solid #858585;
+  background-color: #E2E2E2;
+}

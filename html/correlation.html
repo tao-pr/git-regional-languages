@@ -1,0 +1,28 @@
+<html>
+  <head>
+    <title>Github Language Correlation</title>
+    <link rel="stylesheet" type="text/css" href="./css/correlation.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="./js/correlation.js"></script>
+    <script>
+      var correlation = getDist();
+      console.log(correlation); // TAODEBUG:
+      function newSheet(lang){
+        return '<div>' + lang.lang + '</div>' // TAOTODO:
+      }
+
+      function exhibit(correlation){
+        while (correlation.length > 0){
+          var lang = correlation.shift();
+          console.log(`Rendering ... ${lang.lang}`);
+          $('body').first().append(newSheet(lang));
+        }
+  
+      }
+
+      $(document).ready(function(){ exhibit(correlation) })
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
