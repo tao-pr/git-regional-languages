@@ -7,3 +7,4 @@ spark/project/project/
 spark/project/target/
 html/js/correlation.js
 target/
+package-lock.json
