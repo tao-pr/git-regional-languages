@@ -14,9 +14,11 @@ in some particular regions. Let's find out.
 
 ---
 
-![screenshot-01](media/apacheconf.jpg)
+![screenshot-01](media/javascript.png)
 
-![screenshot-02](media/perl.jpg)
+![screenshot-02](media/matlab.png)
+
+![screenshot-02](media/ocaml.png)
 
 ---
 
@@ -133,6 +135,11 @@ html/index.html
 
 Just open it up in your favourite browser to see the visualisation.
 
+![screenshot-04](media/python.png)
+![screenshot-04](media/ruby.png)
+![screenshot-04](media/rust.png)
+![screenshot-04](media/scala.png)
+
 
 ### Why my languages don't display any heatmap?
 
@@ -143,21 +150,6 @@ if the authors of those repositories don't indicate
 their location in their profile. That's why some languages 
 are left unplotted even though they are correctly listed.
 
----
-
-![screenshot-04](media/applescript.jpg)
-
-![screenshot-03](media/commonlisp.jpg)
-
-![screenshot-03](media/elixir.jpg)
-
-![screenshot-03](media/go.jpg)
-
-![screenshot-03](media/lasso.jpg)
-
-![screenshot-03](media/groovy.jpg)
-
-![screenshot-03](media/standardml.jpg)
 
 ---
 
