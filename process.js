@@ -167,7 +167,7 @@ function generateLanguageCorrelationToJSON(outputPath){
 
 				// Take only top languages (by number of repos)
 				list.sort(baseOccurrenceComparer);
-				list = list.slice(0,25);
+				list = list.slice(0,35);
 				console.log(list.map((l) => {
 					l.top = JSON.stringify(l.top)
 					return l;
@@ -295,12 +295,20 @@ function portGoogleAPIKey(outputPath){
  * Main entry
  */
 function prep(){
+	var arg = process.argv.slice(1,1);
+
+	if (arg.length == 0){
+		console.error("Please specify argument".red);
+		console.error("  --corr : to generate language correlation")
+		console.error("  --dist : to generate language geo distribution")
+		process.exit(1);
+	}
+	
 	console.log('******************'.green);
 	console.log('  Preparing data'.green)
 	console.log('******************'.green);
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
-	MapReduce.langDistributionByLocation(datasource)
-		// TAOTODO: add correlation between languages that co-exist in a repo
+	var proc = MapReduce.langDistributionByLocation(datasource)
 		.then(function(dist){
 
 			// Sort density and remove null location
@@ -329,13 +337,20 @@ function prep(){
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
-		// TAODEBUG:
-		.then(generateLanguageCorrelationToJSON('html/js/correlation.js'))
-		// .then(generateGeoLanguageDensity)
-		// .then(generateJson('spark/src/main/resources/dist.json'))
-		// .then(generateJs('html/js/dist.js'))
-		// .then(() => portGoogleAPIKey('html/js/gapi.js'))
-		.then(() => process.exit(0))
+
+	if (arg[0] == '--corr'){
+		proc = proc
+			.then(generateLanguageCorrelationToJSON('html/js/correlation.js'))
+			.then(() => process.exit(0))
+	}
+	else if (arg[0] == '--dist'){
+		proc = proc
+			.then(generateGeoLanguageDensity)
+			.then(generateJson('spark/src/main/resources/dist.json'))
+			.then(generateJs('html/js/dist.js'))
+			.then(() => portGoogleAPIKey('html/js/gapi.js'))
+			.then(() => process.exit(0))
+	}		
 }
 
 

@@ -14,9 +14,11 @@ in some particular regions. Let's find out.
 
 ---
 
-![screenshot-01](media/apacheconf.jpg)
+![screenshot-01](media/javascript.png)
 
-![screenshot-02](media/perl.jpg)
+![screenshot-02](media/matlab.png)
+
+![screenshot-02](media/ocaml.png)
 
 ---
 
@@ -90,14 +92,14 @@ store them in the MongoDB.
 
 ---
 
-## Process the repositories
+## Generate geographical distribution of languages
 
 We have a script to process the entire bulk of downloaded repository 
 data in MongoDB, generate the geospatial distribution of languages 
 written in each repository. Execute the following script:
 
 ```
-$ node process.js
+$ node process.js --dist
 ```
 
 >**Why Node?** 
@@ -106,7 +108,7 @@ $ node process.js
 > Node.js natively communicates with `MongoDB` and 
 > JavaScript works well with `GoogleMAP API`. That's why.
 
-### What process.js does?
+### What process.js --dist does?
 
 Following tasks are sequentially run:
 
@@ -133,6 +135,11 @@ html/index.html
 
 Just open it up in your favourite browser to see the visualisation.
 
+![screenshot-04](media/python.png)
+![screenshot-04](media/ruby.png)
+![screenshot-04](media/rust.png)
+![screenshot-04](media/scala.png)
+
 
 ### Why my languages don't display any heatmap?
 
@@ -143,21 +150,26 @@ if the authors of those repositories don't indicate
 their location in their profile. That's why some languages 
 are left unplotted even though they are correctly listed.
 
+
 ---
 
-![screenshot-04](media/applescript.jpg)
+## Generate language correlation
 
-![screenshot-03](media/commonlisp.jpg)
+One repository may likely contain more than one language. To find out which languages co-exist in the same repository the most, generate the correlation by running:
 
-![screenshot-03](media/elixir.jpg)
+```
+$ node process.js --corr
+```
 
-![screenshot-03](media/go.jpg)
+### View the correlation
 
-![screenshot-03](media/lasso.jpg)
+After the process finished, we can view the output at:
 
-![screenshot-03](media/groovy.jpg)
+```
+html/correlation.html
+```
 
-![screenshot-03](media/standardml.jpg)
+![screenshot-04](media/correlation.png)
 
 ---
 

@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <title>Github Language Correlation</title>
+    <link rel="stylesheet" type="text/css" href="./css/correlation.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script type="text/javascript" src="./js/correlation.js"></script>
+    <script>
+      var correlation = getDist();
+      console.log(correlation);
+      function newSheet(lang){
+        var div = $('<div>')
+        div.append(`<h1>${lang.lang}</h1>`)
+        return div;
+      }
+
+      function lazyRound(a){
+        var s = ((a * 100).toString().split('.')[0]*0.01).toString()
+        return s.slice(0,s.indexOf('.')+3)
+      }
+
+      function exhibit(correlation){
+        while (correlation.length > 0){
+          var lang = correlation.shift();
+          console.log(`Rendering ... ${lang.lang}`);
+          var sheet = newSheet(lang);
+          $(sheet).append(`<p>${lang.numRepos} repositories</p>`)
+          lang.top = JSON.parse(lang.top)
+          lang.top.forEach((top) => {
+            if (top.occ > 1e-4) {
+              top.occ = lazyRound(top.occ * 100) + " %"
+              var p = $('<p class="flex">');
+              var dt = $(`<dt>with ${top.lang}</dt>`);
+              var dd = $(`<dd>${top.occ}</dd>`);
+              p.append(dt);
+              p.append(dd);
+              $(sheet).append(p);
+            }
+          })
+          $('body').first().append(sheet)
+        }
+  
+      }
+
+      $(document).ready(function(){ exhibit(correlation) })
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
