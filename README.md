@@ -90,14 +90,14 @@ store them in the MongoDB.
 
 ---
 
-## Process the repositories
+## Generate geographical distribution of languages
 
 We have a script to process the entire bulk of downloaded repository 
 data in MongoDB, generate the geospatial distribution of languages 
 written in each repository. Execute the following script:
 
 ```
-$ node process.js
+$ node process.js --dist
 ```
 
 >**Why Node?** 
@@ -106,7 +106,7 @@ $ node process.js
 > Node.js natively communicates with `MongoDB` and 
 > JavaScript works well with `GoogleMAP API`. That's why.
 
-### What process.js does?
+### What process.js --dist does?
 
 Following tasks are sequentially run:
 
@@ -158,6 +158,24 @@ are left unplotted even though they are correctly listed.
 ![screenshot-03](media/groovy.jpg)
 
 ![screenshot-03](media/standardml.jpg)
+
+---
+
+## Generate language correlation
+
+One repository may likely contain more than one language. To find out which languages co-exist in the same repository the most, generate the correlation by running:
+
+```
+$ node process.js --corr
+```
+
+### View the correlation
+
+After the process finished, we can view the output at:
+
+```
+html/correlation.html
+```
 
 ---
 
