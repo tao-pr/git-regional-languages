@@ -5,4 +5,5 @@ gitapi/__pycache__/
 node_modules/
 spark/project/project/
 spark/project/target/
-spark/target
+html/js/correlation.js
+target/
