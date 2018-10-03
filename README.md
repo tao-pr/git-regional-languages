@@ -169,6 +169,8 @@ After the process finished, we can view the output at:
 html/correlation.html
 ```
 
+![screenshot-04](media/correlation.png)
+
 ---
 
 ## License
