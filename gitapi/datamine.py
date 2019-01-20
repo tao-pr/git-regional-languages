@@ -23,7 +23,7 @@ def get_repo_owner_and_langs(since=None):
 			'owner': repo_owner,
 			'langs': repo_langs
 		}
-		# TAODEBUG:
+
 		print(colored('********','cyan'))
 		pprint(info)
 
