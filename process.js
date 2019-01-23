@@ -298,9 +298,9 @@ function prep(){
 	var arg = process.argv.slice(1,1);
 
 	if (arg.length == 0){
-		console.error("Please specify argument".red);
-		console.error("  --corr : to generate language correlation")
-		console.error("  --dist : to generate language geo distribution")
+		console.error("Please specify an argument".red);
+		console.error("  --corr ".green, " : to generate a language correlation file")
+		console.error("  --dist ".green, " : to generate a language geo distribution file")
 		process.exit(1);
 	}
 	
@@ -350,7 +350,7 @@ function prep(){
 			.then(generateJs('html/js/dist.js'))
 			.then(() => portGoogleAPIKey('html/js/gapi.js'))
 			.then(() => process.exit(0))
-	}		
+	}
 }
 
 
