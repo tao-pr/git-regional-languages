@@ -108,6 +108,21 @@ function updateGeoRegions(locations){
 		.then((locations) => Promise.map(locations,createGeoUpdater))
 }
 
+function generateLanguageGraphToJSON(outputPath){
+	return function(){
+		console.log('Generating language graph...'.green)
+
+		var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
+		return MapReduce.asGraph(datasource)
+			.then((graph) => {
+				console.log('Processing graph data ...')
+				// TAOTODO: Apply additional filtering or transformation
+				return graph;
+			})
+			.then(generateJs(outputPath))
+	}
+}
+
 function generateLanguageCorrelationToJSON(outputPath){
 	return function(){
 		console.log('Generating language correlation...'.green)
@@ -295,12 +310,13 @@ function portGoogleAPIKey(outputPath){
  * Main entry
  */
 function prep(){
-	var arg = process.argv.slice(1,1);
+	var arg = process.argv.slice(1,-1);
 
 	if (arg.length == 0){
 		console.error("Please specify an argument".red);
 		console.error("  --corr ".green, " : to generate a language correlation file")
 		console.error("  --dist ".green, " : to generate a language geo distribution file")
+		console.error("  --graph".green, " : to generate a language relation graph file")
 		process.exit(1);
 	}
 	
@@ -341,6 +357,11 @@ function prep(){
 	if (arg[0] == '--corr'){
 		proc = proc
 			.then(generateLanguageCorrelationToJSON('html/js/correlation.js'))
+			.then(() => process.exit(0))
+	}
+	else if (arg[0] == "--graph"){
+		proc = proc
+			.then(generateLanguageGraphToJSON('html/js/graph.js'))
 			.then(() => process.exit(0))
 	}
 	else if (arg[0] == '--dist'){

@@ -17,6 +17,68 @@ MapReduce.db = function(serverAddr,dbName,collection){
 }
 
 /**
+ *
+ */
+MapReduce.asGraph = function(dbsrc){
+
+	var map = function(){
+		var record = this;
+		let totLoc = 0;
+		let langs = [];
+		if (Object.keys(this.langs).length > 1)
+			Object.keys(this.langs).forEach((baselang) => {
+				let w = record.langs[baselang]
+				langs.push({lang: baselang, density: w})
+				totLoc += w
+			})
+
+		if (totLoc > 0){
+			langs.map((l) => l.density /= totLoc*1.0)	
+		}
+
+		// Take only one main language
+		// and all links to the neighbour languages
+		let primaryLang = {lang: null, density: 0}
+		langs.forEach((a) => {
+			if (a.density > primaryLang.density){
+				primaryLang = {lang: a.lang, density: a.density}
+			}
+		})
+
+		langs.forEach((a) => {
+			if (a.lang != primaryLang.lang){
+				emit({
+					lang: 			primaryLang.lang,
+					density: 		primaryLang.density,
+					neighbours: {lang: a.lang, ratios: [primaryLang.density / a.density]}
+				})
+			}
+		})
+	}
+	var reduce = function(key,values){
+		// TAOTODO:
+	}
+
+	return Promise.resolve((done,reject) => {
+		dbsrc.mapReduce(
+			map.toString(),
+			reduce.toString(),
+			{out: "graph"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
+}
+
+/**
  * Generate the correlation of pairs of languages
  */
 MapReduce.langCorrelation = function(dbsrc){
