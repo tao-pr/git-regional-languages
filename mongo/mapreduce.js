@@ -47,16 +47,29 @@ MapReduce.asGraph = function(dbsrc){
 
 		langs.forEach((a) => {
 			if (a.lang != primaryLang.lang){
+				let nn = {};
+				nn[a.lang] = [primaryLang.density / a.density];
 				emit({
 					lang: 			primaryLang.lang,
 					density: 		primaryLang.density,
-					neighbours: {lang: a.lang, ratios: [primaryLang.density / a.density]}
+					neighbours: nn
 				})
 			}
 		})
 	}
 	var reduce = function(key,values){
-		// TAOTODO:
+
+		let out = {lang: null, density: 0, neighbours: {}}
+		values.forEach((v) => {
+			out.lang = v.lang;
+			out.density = v.density;
+			let [l,d] = Object.entries(v.neighbours)[0]; // [lang, density]
+			if (!(v in out.neighbours)) 
+				out.neighbours[l] = [];
+			out.neighbours[l].push(d);
+		})
+
+		return out;
 	}
 
 	return Promise.resolve((done,reject) => {
