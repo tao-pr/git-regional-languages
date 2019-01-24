@@ -23,11 +23,11 @@ MapReduce.asGraph = function(dbsrc){
 
 	var map = function(){
 		var record = this;
-		let totLoc = 0;
-		let langs = [];
+		var totLoc = 0;
+		var langs = [];
 		if (Object.keys(this.langs).length > 1)
 			Object.keys(this.langs).forEach((baselang) => {
-				let w = record.langs[baselang]
+				var w = record.langs[baselang]
 				langs.push({lang: baselang, density: w})
 				totLoc += w
 			})
@@ -38,7 +38,7 @@ MapReduce.asGraph = function(dbsrc){
 
 		// Take only one main language
 		// and all links to the neighbour languages
-		let primaryLang = {lang: null, density: 0}
+		var primaryLang = {lang: null, density: 0}
 		langs.forEach((a) => {
 			if (a.density > primaryLang.density){
 				primaryLang = {lang: a.lang, density: a.density}
@@ -47,7 +47,7 @@ MapReduce.asGraph = function(dbsrc){
 
 		langs.forEach((a) => {
 			if (a.lang != primaryLang.lang){
-				let nn = {};
+				var nn = {};
 				nn[a.lang] = [primaryLang.density / a.density];
 				emit({
 					lang: 			primaryLang.lang,
@@ -59,11 +59,11 @@ MapReduce.asGraph = function(dbsrc){
 	}
 	var reduce = function(key,values){
 
-		let out = {lang: null, density: 0, neighbours: {}}
+		var out = {lang: null, density: 0, neighbours: {}}
 		values.forEach((v) => {
 			out.lang = v.lang;
 			out.density = v.density;
-			let [l,d] = Object.entries(v.neighbours)[0]; // [lang, density]
+			var [l,d] = Object.entries(v.neighbours)[0]; // [lang, density]
 			if (!(v in out.neighbours)) 
 				out.neighbours[l] = [];
 			out.neighbours[l].push(d);
@@ -72,6 +72,7 @@ MapReduce.asGraph = function(dbsrc){
 		return out;
 	}
 
+	console.log('MapReducing into a graph ...');
 	return Promise.resolve((done,reject) => {
 		dbsrc.mapReduce(
 			map.toString(),
