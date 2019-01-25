@@ -49,7 +49,7 @@ MapReduce.asGraph = function(dbsrc){
 			if (a.lang != primaryLang.lang){
 				var nn = {};
 				nn[a.lang] = [primaryLang.density / a.density];
-				emit({
+				emit( primaryLang.lang, {
 					lang: 			primaryLang.lang,
 					density: 		primaryLang.density,
 					neighbours: nn
@@ -63,7 +63,8 @@ MapReduce.asGraph = function(dbsrc){
 		values.forEach(function(v){
 			out.lang = v.lang;
 			out.density = v.density;
-			var [l,d] = Object.entries(v.neighbours)[0]; // [lang, density]
+			var l = Object.keys(v.neighbours)[0];
+			var d = v.neighbours[l];
 			if (!(v in out.neighbours))
 				out.neighbours[l] = [];
 			out.neighbours[l].push(d);
