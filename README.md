@@ -173,6 +173,22 @@ html/correlation.html
 
 ---
 
+## Generate the language graph
+
+Run the following command to generate a graph of relations among languages.
+
+```
+$ node process.js --graph
+```
+
+Then the graph can be viewed in the following file.
+
+```
+html/graph.html
+```
+
+---
+
 ## License
 
 MIT
