@@ -63,7 +63,7 @@ function updateGeoRegions(locations){
 			!!~location.indexOf('@') ||
 			!!location.toLowerCase().indexOf('where')){
 
-				console.log(`Skip - ${location}`.yellow);
+				// console.log(`Skip - ${location}`.yellow);
 				return false;
 		}
 		else return true;
@@ -310,13 +310,14 @@ function portGoogleAPIKey(outputPath){
  * Main entry
  */
 function prep(){
-	var arg = process.argv.slice(1,-1);
+	var arg = process.argv.slice(2,10);
 
 	if (arg.length == 0){
 		console.error("Please specify an argument".red);
 		console.error("  --corr ".green, " : to generate a language correlation file")
 		console.error("  --dist ".green, " : to generate a language geo distribution file")
 		console.error("  --graph".green, " : to generate a language relation graph file")
+		console.error("  --skippreproc".yellow, " : add this argument to skip geospatial data pre-processing step")
 		process.exit(1);
 	}
 	
@@ -325,7 +326,13 @@ function prep(){
 	console.log('******************'.green);
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	var proc = MapReduce.langDistributionByLocation(datasource)
-		.then(function(dist){
+
+	if (arg.length > 1 && arg[1] == '--skippreproc'){
+		console.log('NOTE: '.magenta, 'Using pre-processed geospatial data...')
+	}
+	else {
+		// Full process, including preprocessing
+		proc = proc.then(function(dist){
 
 			// Sort density and remove null location
 			//-----------------------------------------------------
@@ -353,6 +360,7 @@ function prep(){
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
+	}
 
 	if (arg[0] == '--corr'){
 		proc = proc
