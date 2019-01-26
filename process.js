@@ -317,7 +317,7 @@ function prep(){
 		console.error("  --corr ".green, " : to generate a language correlation file")
 		console.error("  --dist ".green, " : to generate a language geo distribution file")
 		console.error("  --graph".green, " : to generate a language relation graph file")
-		console.error("  --skippreproc".yellow, " : add this argument to skip geospatial data pre-processing step")
+		console.error("  --skipprep".yellow, " : add this argument to skip geospatial data pre-processing step")
 		process.exit(1);
 	}
 	
@@ -327,7 +327,7 @@ function prep(){
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	var proc = MapReduce.langDistributionByLocation(datasource)
 
-	if (arg.length > 1 && arg[1] == '--skippreproc'){
+	if (arg.length > 1 && arg[1] == '--skipprep'){
 		console.log('NOTE: '.magenta, 'Using pre-processed geospatial data...')
 	}
 	else {

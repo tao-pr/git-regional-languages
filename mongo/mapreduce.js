@@ -45,26 +45,27 @@ MapReduce.asGraph = function(dbsrc){
 			}
 		})
 
-		langs.forEach(function(a) {
-			if (a.lang != primaryLang.lang){
-				var nn = {};
-				nn[a.lang] = [primaryLang.density / a.density];
-				emit( primaryLang.lang, {
-					lang: 			primaryLang.lang,
-					density: 		primaryLang.density,
-					neighbours: nn
-				})
-			}
-		})
+		if (primaryLang.lang != null){
+			langs.forEach(function(a) {
+				if (a.lang != primaryLang.lang){
+					var nn = {};
+					nn[a.lang] = [primaryLang.density / a.density];
+					emit( primaryLang.lang, {
+						density: 		primaryLang.density,
+						neighbours: nn
+					})
+				}
+			})
+		}
 	}
 	var reduce = function(key,values){
 
 		var out = {lang: null, density: 0, neighbours: {}}
 		values.forEach(function(v){
 			out.lang = v.lang;
-			out.density = v.density;
+			out.density += v.density;
 			var l = Object.keys(v.neighbours)[0];
-			var d = v.neighbours[l];
+			var d = v.neighbours[l][0];
 			if (!(v in out.neighbours))
 				out.neighbours[l] = [];
 			out.neighbours[l].push(d);
