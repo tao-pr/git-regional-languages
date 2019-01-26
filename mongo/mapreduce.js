@@ -60,10 +60,10 @@ MapReduce.asGraph = function(dbsrc){
 	}
 	var reduce = function(key,values){
 
-		var out = {lang: null, density: 0, neighbours: {}}
+		var out = {lang: null, density: [], neighbours: {}}
 		values.forEach(function(v){
 			out.lang = v.lang;
-			out.density += v.density;
+			out.density.push(v.density);
 			var l = Object.keys(v.neighbours)[0];
 			var d = v.neighbours[l][0];
 			if (!(v in out.neighbours))
