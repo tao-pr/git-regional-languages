@@ -25,34 +25,30 @@ MapReduce.asGraph = function(dbsrc){
 		var record = this;
 		var totLoc = 0;
 		var langs = [];
-		if (Object.keys(this.langs).length > 1)
-			Object.keys(this.langs).forEach(function(baselang){
-				var w = record.langs[baselang]
-				langs.push({lang: baselang, density: w})
-				totLoc += w
-			})
 
-		if (totLoc > 0){
-			langs.map(function(l){ return l.density /= totLoc*1.0 })	
-		}
-
-		// Take only one main language
-		// and all links to the neighbour languages
-		var primaryLang = {lang: null, density: 0}
-		langs.forEach(function(a){
-			if (a.density > primaryLang.density){
-				primaryLang = {lang: a.lang, density: a.density}
-			}
+		Object.keys(record.langs).forEach(function(baselang){
+			var w = record.langs[baselang]
+			langs.push({lang: baselang, density: w})
+			totLoc += w
 		})
 
+		if (langs.length == 0) return null;
+
+		var primaryLang = langs[0];
+		langs.forEach(function(l,i){ 
+			if (l.density > primaryLang)
+				primaryLang = langs[i];
+		})
+
+		// Take the primary language and link to their neighbours
 		if (primaryLang.lang != null){
 			langs.forEach(function(a) {
-				if (a.lang != primaryLang.lang){
-					var nn = {};
-					nn[a.lang] = [primaryLang.density / a.density];
+				if (a.lang != primaryLang.lang && a.lang){
+					// Emit each neighbour separately
 					emit( primaryLang.lang, {
-						density: 		primaryLang.density,
-						neighbours: nn
+						density: primaryLang.density,
+						to:      a.lang,
+						w:       a.density / totLoc
 					})
 				}
 			})
@@ -64,11 +60,10 @@ MapReduce.asGraph = function(dbsrc){
 		values.forEach(function(v){
 			out.lang = v.lang;
 			out.density.push(v.density);
-			var l = Object.keys(v.neighbours)[0];
-			var d = v.neighbours[l][0];
-			if (!(v in out.neighbours))
-				out.neighbours[l] = [];
-			out.neighbours[l].push(d);
+			
+			if (!(v.to in out.neighbours))
+				out.neighbours[v.to] = [];
+			out.neighbours[v.to].push(v.w);
 		})
 
 		return out;
