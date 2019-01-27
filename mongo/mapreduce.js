@@ -17,7 +17,7 @@ MapReduce.db = function(serverAddr,dbName,collection){
 }
 
 /**
- *
+ * Generate language relations as a graph
  */
 MapReduce.asGraph = function(dbsrc){
 
