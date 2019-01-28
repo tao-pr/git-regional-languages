@@ -3,10 +3,45 @@
     <title>Github Language Distribution On Earth</title>
     <link rel="stylesheet" type="text/css" href="./css/dist.css">
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="https://raw.githubusercontent.com/cytoscape/cytoscape.js/master/dist/cytoscape.min.js"></script>
     <script type="text/javascript" src="./js/graph.js"></script>
     <script>
       var g = getDist();
-      console.log(g);
+
+      var s = new Set();
+      var nodes = [];
+      var edges = [];
+
+      g.forEach((n) => {
+        let lang = n._id;
+        let loc  = n.value.loc;
+        s.add(lang);
+        nodes.push({ data: {id: lang} });
+        console.log(n.value); // TAODEBUG:
+        Object.entries(n.value.neighbours).forEach((m) => {
+          // Add a new node if doesn't exist
+          let [nn,dd] = m;
+          if (!s.has(nn)){
+            s.add(nn);
+            nodes.push({ data: {id: nn}})
+          }
+          edges.push({ data: {
+            id: lang+'-'+nn, 
+            source: lang, 
+            target: nn
+          }})
+        })
+      })
+
+      $(document).ready(function(){
+        cytoscape({
+          container: document.getElementsByTagName('body')[0],
+          elements: {
+            nodes: nodes,
+            edges: edges
+          }
+        })
+      })
     </script>
   </head>
   <body>

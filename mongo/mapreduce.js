@@ -47,8 +47,8 @@ MapReduce.asGraph = function(dbsrc){
 					// Emit each neighbour separately
 					emit( primaryLang.lang, {
 						loc: primaryLang.loc,
-						to:      a.lang,
-						w:       a.loc / totLoc
+						to:  a.lang,
+						w:   a.loc / totLoc
 					})
 				}
 			})
@@ -60,10 +60,11 @@ MapReduce.asGraph = function(dbsrc){
 		values.forEach(function(v){
 			out.lang = v.lang;
 			out.loc += v.loc;
-			
-			if (!(v.to in out.neighbours))
-				out.neighbours[v.to] = [];
-			out.neighbours[v.to].push(v.w);
+			if (v && v.to){
+				if (!(v.to in out.neighbours))
+					out.neighbours[v.to] = [];
+				out.neighbours[v.to].push(v.w);
+			}
 		})
 
 		return out;
