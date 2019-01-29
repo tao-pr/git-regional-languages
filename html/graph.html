@@ -1,9 +1,11 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-US" style="width:100%;height:100%">
   <head>
+  <meta charset="UTF-8"/>
     <title>Github Language Distribution On Earth</title>
     <link rel="stylesheet" type="text/css" href="./css/dist.css">
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script type="text/javascript" src="https://raw.githubusercontent.com/cytoscape/cytoscape.js/master/dist/cytoscape.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
     <script type="text/javascript" src="./js/graph.js"></script>
     <script>
       var g = getDist();
@@ -12,35 +14,62 @@
       var nodes = [];
       var edges = [];
 
-      g.forEach((n) => {
+      g.filter((n) => n.value.loc > 1e5).forEach((n) => {
         let lang = n._id;
         let loc  = n.value.loc;
         s.add(lang);
-        nodes.push({ data: {id: lang} });
-        console.log(n.value); // TAODEBUG:
-        Object.entries(n.value.neighbours).forEach((m) => {
-          // Add a new node if doesn't exist
-          let [nn,dd] = m;
-          if (!s.has(nn)){
-            s.add(nn);
-            nodes.push({ data: {id: nn}})
-          }
-          edges.push({ data: {
-            id: lang+'-'+nn, 
-            source: lang, 
-            target: nn
-          }})
-        })
+        nodes.push({ id: lang, value: loc, label: lang});
+
+        // Do not include languages with low usage
+        console.log(lang, n.value);
+
+        if (n.value.neighbours && typeof(loc) === 'number'){
+          Object.entries(n.value.neighbours).forEach((m) => {
+            // Add a new node if doesn't exist
+            let [nn,dd] = m;
+            if (!s.has(nn)){
+              s.add(nn);
+            }
+
+            sum = (ns) => { ns.reduce((a,b) => a+b) }
+
+            edges.push({
+              from: lang, to: nn, value: sum(dd)
+            })
+          })
+        }
       })
 
       $(document).ready(function(){
-        cytoscape({
-          container: document.getElementsByTagName('body')[0],
-          elements: {
-            nodes: nodes,
-            edges: edges
-          }
-        })
+        let data = {nodes: nodes, edges: edges}
+        let options = {
+          nodes:{
+            shape: 'dot',
+            scaling:{
+              min: 5,
+              max: 20,
+              label:{
+                min: 12,
+                max: 18
+              }
+            }
+          },
+          edges:{
+            scaling:{
+              min:0.1,
+              max:1,
+              label:{
+                min:12,
+                max:24
+              }
+            }
+          },
+          physics: false
+          // interaction:{
+          //   hover: true
+          // }
+        }
+        new vis.Network(document.getElementsByTagName('body')[0], data, options);
       })
     </script>
   </head>

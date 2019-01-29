@@ -56,9 +56,8 @@ MapReduce.asGraph = function(dbsrc){
 	}
 	var reduce = function(key,values){
 
-		var out = {lang: null, loc: 0, neighbours: {}}
+		var out = {loc: 0, neighbours: {}}
 		values.forEach(function(v){
-			out.lang = v.lang;
 			out.loc += v.loc;
 			if (v && v.to){
 				if (!(v.to in out.neighbours))
