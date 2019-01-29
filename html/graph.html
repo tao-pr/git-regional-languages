@@ -14,7 +14,7 @@
       var nodes = [];
       var edges = [];
 
-      g.filter((n) => n.value.loc > 1e5).forEach((n) => {
+      g.filter((n) => n.value.loc > 5e5).forEach((n) => {
         let lang = n._id;
         let loc  = n.value.loc;
         s.add(lang);
@@ -30,11 +30,9 @@
             if (!s.has(nn)){
               s.add(nn);
             }
-
-            sum = (ns) => { ns.reduce((a,b) => a+b) }
-
+            let mean = (aa) => aa.reduce((a,b) => a+b)/aa.length
             edges.push({
-              from: lang, to: nn, value: sum(dd)
+              from: lang, to: nn, value: mean(dd)
             })
           })
         }
