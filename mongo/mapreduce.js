@@ -17,6 +17,79 @@ MapReduce.db = function(serverAddr,dbName,collection){
 }
 
 /**
+ * Generate language relations as a graph
+ */
+MapReduce.asGraph = function(dbsrc){
+
+	var map = function(){
+		var record = this;
+		var totLoc = 0;
+		var langs = [];
+
+		Object.keys(record.langs).forEach(function(baselang){
+			var w = record.langs[baselang]
+			langs.push({lang: baselang, loc: w})
+			totLoc += w
+		})
+
+		if (langs.length == 0) return null;
+
+		var primaryLang = langs[0];
+		langs.forEach(function(l,i){ 
+			if (l.loc > primaryLang)
+				primaryLang = langs[i];
+		})
+
+		// Take the primary language and link to their neighbours
+		if (primaryLang.lang != null){
+			langs.forEach(function(a) {
+				if (a.lang != primaryLang.lang && a.lang){
+					// Emit each neighbour separately
+					emit( primaryLang.lang, {
+						loc: primaryLang.loc,
+						to:  a.lang,
+						w:   a.loc / totLoc
+					})
+				}
+			})
+		}
+	}
+	var reduce = function(key,values){
+
+		var out = {loc: 0, neighbours: {}}
+		values.forEach(function(v){
+			out.loc += v.loc;
+			if (v && v.to){
+				if (!(v.to in out.neighbours))
+					out.neighbours[v.to] = [];
+				out.neighbours[v.to].push(v.w);
+			}
+		})
+
+		return out;
+	}
+
+	console.log('MapReducing into a graph ...');
+	return new Promise((done,reject) => {
+		dbsrc.mapReduce(
+			map.toString(),
+			reduce.toString(),
+			{out: "graph"},
+			function(err,destCollection){
+				if (err){
+					console.error('ERROR MapReduce:'.red);
+					console.error(err);
+					return reject(err)
+				}
+
+				// Generate the output
+				return done(destCollection.find().toArray())
+			}
+		)
+	})
+}
+
+/**
  * Generate the correlation of pairs of languages
  */
 MapReduce.langCorrelation = function(dbsrc){

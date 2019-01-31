@@ -26,7 +26,6 @@ function apiEndPoint(location){
 		'&address=',encodeURI(location)
 	].join('')
 
-	// TAODEBUG:
 	console.log(url.yellow);
 
 	return url;

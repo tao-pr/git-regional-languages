@@ -12,7 +12,7 @@ var colors    = require('colors');
 var _         = require('underscore');
 var Promise   = require('bluebird');
 var mongo     = require('mongoskin');
-var fs = require('fs');
+var fs        = require('fs');
 var MapReduce = require('./mongo/mapreduce.js');
 var GeoDB     = require('./mongo/geodb.js');
 var Gmap      = require('./mapapi/gmap.js');
@@ -63,7 +63,7 @@ function updateGeoRegions(locations){
 			!!~location.indexOf('@') ||
 			!!location.toLowerCase().indexOf('where')){
 
-				console.log(`Skip - ${location}`.yellow);
+				// console.log(`Skip - ${location}`.yellow);
 				return false;
 		}
 		else return true;
@@ -106,6 +106,21 @@ function updateGeoRegions(locations){
 			locations.filter((r) => !~existLocations.indexOf(r))
 		)
 		.then((locations) => Promise.map(locations,createGeoUpdater))
+}
+
+function generateLanguageGraphToJSON(outputPath){
+	return function(){
+		console.log('Generating language graph...'.green)
+
+		var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
+		return MapReduce.asGraph(datasource)
+			.then((graph) => {
+				console.log('Processing graph data ...')
+				// TAOTODO: Apply additional filtering or transformation
+				return graph;
+			})
+			.then(generateJs(outputPath))
+	}
 }
 
 function generateLanguageCorrelationToJSON(outputPath){
@@ -295,12 +310,14 @@ function portGoogleAPIKey(outputPath){
  * Main entry
  */
 function prep(){
-	var arg = process.argv.slice(1,1);
+	var arg = process.argv.slice(2,10);
 
 	if (arg.length == 0){
-		console.error("Please specify argument".red);
-		console.error("  --corr : to generate language correlation")
-		console.error("  --dist : to generate language geo distribution")
+		console.error("Please specify an argument".red);
+		console.error("  --corr ".green, " : to generate a language correlation file")
+		console.error("  --dist ".green, " : to generate a language geo distribution file")
+		console.error("  --graph".green, " : to generate a language relation graph file")
+		console.error("  --skipprep".yellow, " : add this argument to skip geospatial data pre-processing step")
 		process.exit(1);
 	}
 	
@@ -309,7 +326,13 @@ function prep(){
 	console.log('******************'.green);
 	var datasource = MapReduce.db(MONGO_SVR,MONGO_DB,'repos');
 	var proc = MapReduce.langDistributionByLocation(datasource)
-		.then(function(dist){
+
+	if (arg.length > 1 && arg[1] == '--skipprep'){
+		console.log('NOTE: '.magenta, 'Using pre-processed geospatial data...')
+	}
+	else {
+		// Full process, including preprocessing
+		proc = proc.then(function(dist){
 
 			// Sort density and remove null location
 			//-----------------------------------------------------
@@ -337,10 +360,16 @@ function prep(){
 				})
 				.then(updateGeoRegions) // Update geolocation mapping to DB
 		})
+	}
 
 	if (arg[0] == '--corr'){
 		proc = proc
 			.then(generateLanguageCorrelationToJSON('html/js/correlation.js'))
+			.then(() => process.exit(0))
+	}
+	else if (arg[0] == "--graph"){
+		proc = proc
+			.then(generateLanguageGraphToJSON('html/js/graph.js'))
 			.then(() => process.exit(0))
 	}
 	else if (arg[0] == '--dist'){
@@ -350,7 +379,7 @@ function prep(){
 			.then(generateJs('html/js/dist.js'))
 			.then(() => portGoogleAPIKey('html/js/gapi.js'))
 			.then(() => process.exit(0))
-	}		
+	}
 }
 
 

@@ -34,7 +34,7 @@ GeoDB.update = function(db){
 			}
 			var options = {upsert: true}
 
-			console.log('Updating...'.cyan,location); // TAODEBUG:
+			console.log('Updating...'.cyan,location);
 			
 			db.update(query,record,options,function(err,n){
 				if (err){
