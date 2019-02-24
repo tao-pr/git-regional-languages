@@ -12,6 +12,7 @@ def get_repo_owner_and_langs(since=None):
 	repos = get.repos(since)
 
 	def _take_owner_and_langs(repo):
+		# NOTE: This function may fail if Github API quota has exceeded.
 		repo_id       = repo['id']
 		repo_name     = repo['name']
 		repo_owner    = get_user_info(repo['owner']['login'])
